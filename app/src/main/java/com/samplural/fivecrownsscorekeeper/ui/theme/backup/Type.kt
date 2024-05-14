@@ -1,4 +1,4 @@
-package com.samplural.fivecrownsscorekeeper.ui.theme
+package com.samplural.fivecrownsscorekeeper.ui.theme.backup
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

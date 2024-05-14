@@ -1,6 +1,5 @@
-package com.samplural.fivecrownsscorekeeper.ui.theme
+package com.samplural.fivecrownsscorekeeper.ui.theme.backup
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

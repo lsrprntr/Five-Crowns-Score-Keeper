@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
     // Test Default
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -74,6 +75,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Additions
+    // ViewModel Compose Lifecycle
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
