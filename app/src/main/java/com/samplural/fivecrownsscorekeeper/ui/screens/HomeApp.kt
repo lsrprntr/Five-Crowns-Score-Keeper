@@ -176,8 +176,8 @@ fun PlayerCard(
             Text(text = player.name)
             Column {
                 val scoreList = player.scores.split(scoreSeperator)
-                scoreList.forEach {
-                    Text(text = it)
+                scoreList.forEachIndexed  { index, it ->
+                    Text(text = it + "index:" + index)
                 }
             }
             Column(
@@ -243,7 +243,8 @@ fun PlayerCard(
 
 @Composable
 fun ScoreCard(
-    score: String
+    score: String,
+    index: Int,
 ) {
 
 }
