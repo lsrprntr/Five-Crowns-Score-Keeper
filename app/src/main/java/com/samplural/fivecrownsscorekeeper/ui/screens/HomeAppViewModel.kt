@@ -22,18 +22,36 @@ class HomeAppViewModel(
             initialValue = PlayerCardUiState()
         )
 
+    val playerList = uiState.value.player
+
     fun addTestPlayer() {
         viewModelScope.launch {
-            playersRepository.insert(Players(name = "test", scores = "1,1,1,1"))
+            playersRepository.insert(Players(id = 0, name = "test", scores = "1,1,1,1"))
+        }
+    }
+    fun addPlayer(){
+        viewModelScope.launch {
+            playersRepository.insert(Players(id = 0))
+        }
+    }
+    fun updatePlayerName(id: Int, name: String) {
+        viewModelScope.launch {
+            playersRepository.updatePlayerName(id, name)
+
         }
     }
 
+    fun updatePlayerScore(id: Int, score: String) {
+        viewModelScope.launch {
+            playersRepository.updatePlayerScore(id, score)
+        }
+    }
 
 
 }
 
 data class PlayerCardUiState(
-    val player: List<Players> = listOf(Players())
+    val player: List<Players> = emptyList()
 ) {
     companion object {
         const val TIMEOUT_MILLIS = 5_000L

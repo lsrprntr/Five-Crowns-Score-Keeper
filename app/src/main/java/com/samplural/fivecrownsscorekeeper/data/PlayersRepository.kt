@@ -1,10 +1,5 @@
 package com.samplural.fivecrownsscorekeeper.data
 
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 interface PlayersRepository {
@@ -13,5 +8,7 @@ interface PlayersRepository {
     suspend fun delete(player: Players)
     fun getAllPlayers(): Flow<List<Players>>
     suspend fun deleteAllPlayers()
+    suspend fun updatePlayerName(id: Int, name: String)
+    suspend fun updatePlayerScore(id: Int, score: String)
 
 }
