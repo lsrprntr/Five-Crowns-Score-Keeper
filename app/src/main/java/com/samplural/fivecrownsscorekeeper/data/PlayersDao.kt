@@ -27,6 +27,9 @@ interface PlayersDao {
 
     @Query("UPDATE players SET name = :name WHERE id = :id")
     suspend fun updatePlayerName(id: Int, name: String)
-
+    @Query("UPDATE players SET scores = :score WHERE id = :id")
+    suspend fun updatePlayerScore(id: Int, score: String)
+    @Query("SELECT scores FROM players WHERE id = :id LIMIT 1")
+    suspend fun getPlayerScores(id: Int): String
 
 }

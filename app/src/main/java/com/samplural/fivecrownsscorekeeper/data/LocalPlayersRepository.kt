@@ -9,7 +9,6 @@ class LocalPlayersRepository(private val playersDao: PlayersDao): PlayersReposit
     override fun getAllPlayers(): Flow<List<Players>> = playersDao.getAllPlayers()
     override suspend fun deleteAllPlayers() = playersDao.deleteAllPlayers()
     override suspend fun updatePlayerName(id: Int, name: String) = playersDao.updatePlayerName(id, name)
-    override suspend fun updatePlayerScore(id: Int, score: String) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun updatePlayerScore(id: Int, score: String) = playersDao.updatePlayerScore(id, score)
+    override suspend fun getPlayerScores(id: Int): String = playersDao.getPlayerScores(id)
 }

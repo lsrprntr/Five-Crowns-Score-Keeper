@@ -2,9 +2,11 @@ package com.samplural.fivecrownsscorekeeper.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.samplural.fivecrownsscorekeeper.data.Players
+import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
 
 
@@ -64,7 +67,7 @@ fun HomeApp(
                         imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
                     )
                 }
-                IconButton(onClick = { /* do something */ }) {
+                IconButton(onClick = { viewModel.deleteAllPlayers() }) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = "Delete All Button",
@@ -88,6 +91,9 @@ fun HomeApp(
                 onAddScore = { id, score ->
                     viewModel.updatePlayerScore(id, score)
                 },
+                checkScoreAdd = {
+                    viewModel.checkScoreAdd(it)
+                }
             )
 
         }
@@ -99,6 +105,7 @@ fun HomeBody(
     playersList: List<Players>,
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
+    checkScoreAdd: (String) -> Boolean,
 
 ) {
     if (playersList.isNotEmpty()){
@@ -110,8 +117,8 @@ fun HomeBody(
                 PlayerCard(
                     player = player,
                     onNameChange = onNameChange,
-                    onAddScore = onAddScore
-
+                    onAddScore = onAddScore,
+                    checkScoreAdd = checkScoreAdd
                 )
             }
 
@@ -122,21 +129,25 @@ fun HomeBody(
 
 }
 
+
 @Composable
 fun PlayerCard(
     modifier: Modifier = Modifier,
     player: Players,
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
+    checkScoreAdd: (String) -> Boolean
 
 ) {
     Card(
         modifier = modifier
             .padding(4.dp)
-            .widthIn(min = 64.dp),
+            .widthIn(min = 160.dp, max = 160.dp),
     ) {
         Column(
-            modifier = modifier.padding(16.dp)
+            modifier = modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
             Text(text = player.id.toString())
 
@@ -153,19 +164,26 @@ fun PlayerCard(
                     onNameChange(player.id, textName)
                 },
                 label = { Text("Player Name") },
-                modifier = modifier,
+                modifier = modifier.width(IntrinsicSize.Min),
                 singleLine = true,
                 shape = MaterialTheme.shapes.large
                 )
 
-            val totalScore = player.scores.split(",").sumOf { it.toInt() }
+            val totalScore = player.scores.split(scoreSeperator).sumOf { it.toInt() }
             Text(text = "Total: $totalScore")
 
 
             Text(text = player.name)
-            Text(text = player.scores)
-
-            Column(){
+            Column {
+                val scoreList = player.scores.split(scoreSeperator)
+                scoreList.forEach {
+                    Text(text = it)
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
                 var scoreAdd by rememberSaveable { mutableStateOf("0") }
 
                 Row(
@@ -186,17 +204,19 @@ fun PlayerCard(
                     OutlinedTextField(
                         value = scoreAdd,
                         onValueChange = {
-                            scoreAdd = it
+                            if (checkScoreAdd(it)){
+                                scoreAdd = it
+                            }
                         },
                         label = { Text("") },
-                        modifier = modifier,
+                        modifier = modifier.widthIn(max = 72.dp),
                         singleLine = true,
                         shape = MaterialTheme.shapes.extraSmall,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     IconButton(
                         onClick = {
-                            scoreAdd += 1
+                            scoreAdd = (scoreAdd.toInt() + 1).toString()
                         }
                     ) {
                         Icon(
@@ -208,12 +228,11 @@ fun PlayerCard(
                 IconButton(
                     onClick = {
                         onAddScore(player.id, scoreAdd)
-                        scoreAdd = "0"
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AddCircle,
-                        contentDescription = "Delete Player Button",
+                        contentDescription = "Add Score to Row",
                     )
                 }
             }
@@ -223,6 +242,8 @@ fun PlayerCard(
 }
 
 @Composable
-fun ScoreCard() {
+fun ScoreCard(
+    score: String
+) {
 
 }
