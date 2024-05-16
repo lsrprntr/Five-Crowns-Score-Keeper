@@ -8,7 +8,7 @@ data class Players(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val name: String = "",
-    val scores: String = "0"
+    val scores: String = ""
 )
 
 const val scoreSeperator = ","

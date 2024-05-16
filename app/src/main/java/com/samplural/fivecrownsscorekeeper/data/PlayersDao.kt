@@ -32,4 +32,7 @@ interface PlayersDao {
     @Query("SELECT scores FROM players WHERE id = :id LIMIT 1")
     suspend fun getPlayerScores(id: Int): String
 
+    @Query("UPDATE players SET scores = ''")
+    suspend fun resetAllPlayerScores()
+
 }

@@ -23,16 +23,12 @@ class HomeAppViewModel(
             initialValue = PlayerCardUiState()
         )
 
-    fun addTestPlayer() {
+    fun addNewPlayer() {
         viewModelScope.launch {
-            playersRepository.insert(Players(id = 0, name = "test", scores = "1,1"))
+            playersRepository.insert(Players(id = 0, name = "", scores = ""))
         }
     }
-    fun addPlayer(){
-        viewModelScope.launch {
-            playersRepository.insert(Players(id = 0))
-        }
-    }
+
     fun updatePlayerName(id: Int, name: String) {
         viewModelScope.launch {
             playersRepository.updatePlayerName(id, name)
@@ -42,10 +38,28 @@ class HomeAppViewModel(
 
     fun updatePlayerScore(id: Int, score: String) {
         viewModelScope.launch {
-            val scores = playersRepository.getPlayerScores(id) + scoreSeperator + score
-            val scoreList = scores.split(scoreSeperator)
+            // Current Scores and check if first score
+            val scores = playersRepository.getPlayerScores(id)
+            if (scores != ""){
+                val updatedScores = scores + scoreSeperator + score
+                playersRepository.updatePlayerScore(id, updatedScores)
+            } else {
+                playersRepository.updatePlayerScore(id, score)
+            }
+        }
+    }
 
-            playersRepository.updatePlayerScore(id, scores)
+    fun updatePlayerScoreByIndex(id: Int, index: Int, score: String){
+        viewModelScope.launch {
+            val scoresList = playersRepository.getPlayerScores(id).split(scoreSeperator).toMutableList()
+            scoresList[index] = score
+            playersRepository.updatePlayerScore(id, scoresList.joinToString(scoreSeperator))
+        }
+    }
+
+    fun resetAllPlayerScores(){
+        viewModelScope.launch {
+            playersRepository.resetAllPlayerScores()
         }
     }
 
@@ -55,7 +69,9 @@ class HomeAppViewModel(
         }
     }
 
+    // Should return true if number input is valid
     fun checkScoreAdd(scoreAdd: String): Boolean {
+        // TODO: Add validation for letters and negative number formatting
         if (scoreAdd==""){
             return false
         }
