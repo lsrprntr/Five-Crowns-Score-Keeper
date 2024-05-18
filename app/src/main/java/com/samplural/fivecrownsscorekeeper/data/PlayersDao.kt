@@ -22,6 +22,9 @@ interface PlayersDao {
     @Query("SELECT * from players ORDER BY id ASC")
     fun getAllPlayers(): Flow<List<Players>>
 
+    @Query("SELECT id,name,scores FROM players WHERE id = :id LIMIT 1")
+    suspend fun getPlayerById(id: Int): Players
+
     @Query("DELETE FROM players")
     suspend fun deleteAllPlayers()
 
@@ -36,5 +39,8 @@ interface PlayersDao {
     suspend fun resetAllPlayerScores()
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deletePlayerById(id: Int)
+
+    @Query("UPDATE players SET scores = '' WHERE id = :id")
+    suspend fun resetPlayerScoresById(id: Int)
 
 }

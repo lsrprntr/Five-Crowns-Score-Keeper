@@ -6,17 +6,31 @@ import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.PlayersRepository
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.screens.PlayerCardUiState.Companion.TIMEOUT_MILLIS
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeAppViewModel(
     private val playersRepository: PlayersRepository,
 ) : ViewModel() {
 
-    val uiState: StateFlow<PlayerCardUiState> =
+    private val _uiState = MutableStateFlow(PlayerCardUiState())
+    val uiState: StateFlow<PlayerCardUiState> = _uiState
+
+    init {
+        viewModelScope.launch {
+            playersRepository.getAllPlayers().collect { it ->
+                _uiState.value = PlayerCardUiState(it)
+            }
+        }
+    }
+
+    val testuiState: StateFlow<PlayerCardUiState> =
         playersRepository.getAllPlayers().map { PlayerCardUiState(it) }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -51,7 +65,7 @@ class HomeAppViewModel(
         }
     }
 
-    fun updatePlayerScoreByIndex(id: Int, index: Int, score: String){
+    fun updatePlayerScoreByIndex(id: Int, index: Int, score: String) {
         if (checkScoreAdd(score)) {
             viewModelScope.launch {
                 val scoresList =
@@ -62,7 +76,7 @@ class HomeAppViewModel(
         }
     }
 
-    fun resetAllPlayerScores(){
+    fun resetAllPlayerScores() {
         viewModelScope.launch {
             playersRepository.resetAllPlayerScores()
         }
@@ -78,12 +92,13 @@ class HomeAppViewModel(
     fun checkScoreAdd(score: String): Boolean {
         return score.toIntOrNull() != null
     }
+
     // Should return string if number input is invalid
     fun formatScoreAdd(score: String): String {
         if (score.toIntOrNull() == null) {
-            return score
+            return score.trimStart('0')
         }
-        return score.toInt().toString()
+        return score.trimStart('0').toInt().toString()
     }
 
     fun deletePlayerById(id: Int) {
@@ -92,8 +107,32 @@ class HomeAppViewModel(
         }
     }
 
+    fun resetPlayerScoreById(id: Int) {
+        viewModelScope.launch {
+            playersRepository.resetPlayerScoreById(id)
+        }
+    }
 
+
+    fun deletePlayerScoreById(playerId: Int, index: Int) {
+        viewModelScope.launch {
+            val player = playersRepository.getPlayerById(playerId)
+            val scores = player.scores
+            val updatedScores = scores.split(scoreSeperator).toMutableList()
+            updatedScores.removeAt(index)
+            val test = Players(player.id, player.name, updatedScores.joinToString(scoreSeperator))
+            playersRepository.update(test)
+            val tester = playersRepository.getAllPlayers().first()
+            _uiState.update {
+                it.copy(player = tester)
+            }
+        }
+    }
 }
+
+
+
+
 
 data class PlayerCardUiState(
     val player: List<Players> = emptyList()
@@ -102,3 +141,8 @@ data class PlayerCardUiState(
         const val TIMEOUT_MILLIS = 5_000L
     }
 }
+
+data class ScoresList(
+    val id: Int,
+    val score: String
+)

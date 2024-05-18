@@ -13,4 +13,7 @@ class LocalPlayersRepository(private val playersDao: PlayersDao): PlayersReposit
     override suspend fun getPlayerScores(id: Int): String = playersDao.getPlayerScores(id)
     override suspend fun resetAllPlayerScores() = playersDao.resetAllPlayerScores()
     override suspend fun deletePlayerById(id: Int) = playersDao.deletePlayerById(id)
+    override suspend fun resetPlayerScoreById(id: Int) = playersDao.resetPlayerScoresById(id)
+    override suspend fun deletePlayerScoreByIdIndex(playerId: Int, index: Int) {}
+    override suspend fun getPlayerById(id: Int) = playersDao.getPlayerById(id)
 }
