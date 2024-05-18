@@ -37,23 +37,28 @@ class HomeAppViewModel(
     }
 
     fun updatePlayerScore(id: Int, score: String) {
-        viewModelScope.launch {
-            // Current Scores and check if first score
-            val scores = playersRepository.getPlayerScores(id)
-            if (scores != ""){
-                val updatedScores = scores + scoreSeperator + score
-                playersRepository.updatePlayerScore(id, updatedScores)
-            } else {
-                playersRepository.updatePlayerScore(id, score)
+        if (checkScoreAdd(score)) {
+            viewModelScope.launch {
+                // Current Scores and check if first score
+                val scores = playersRepository.getPlayerScores(id)
+                if (scores != "") {
+                    val updatedScores = scores + scoreSeperator + score
+                    playersRepository.updatePlayerScore(id, updatedScores)
+                } else {
+                    playersRepository.updatePlayerScore(id, score)
+                }
             }
         }
     }
 
     fun updatePlayerScoreByIndex(id: Int, index: Int, score: String){
-        viewModelScope.launch {
-            val scoresList = playersRepository.getPlayerScores(id).split(scoreSeperator).toMutableList()
-            scoresList[index] = score
-            playersRepository.updatePlayerScore(id, scoresList.joinToString(scoreSeperator))
+        if (checkScoreAdd(score)) {
+            viewModelScope.launch {
+                val scoresList =
+                    playersRepository.getPlayerScores(id).split(scoreSeperator).toMutableList()
+                scoresList[index] = score
+                playersRepository.updatePlayerScore(id, scoresList.joinToString(scoreSeperator))
+            }
         }
     }
 
@@ -70,12 +75,15 @@ class HomeAppViewModel(
     }
 
     // Should return true if number input is valid
-    fun checkScoreAdd(scoreAdd: String): Boolean {
-        // TODO: Add validation for letters and negative number formatting
-        if (scoreAdd==""){
-            return false
+    fun checkScoreAdd(score: String): Boolean {
+        return score.toIntOrNull() != null
+    }
+    // Should return string if number input is invalid
+    fun formatScoreAdd(score: String): String {
+        if (score.toIntOrNull() == null) {
+            return score
         }
-        return true
+        return score.toInt().toString()
     }
 
     fun deletePlayerById(id: Int) {

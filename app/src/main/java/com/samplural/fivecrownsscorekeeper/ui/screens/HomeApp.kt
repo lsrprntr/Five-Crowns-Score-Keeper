@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,11 +22,12 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,7 +36,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -59,6 +61,7 @@ import com.samplural.fivecrownsscorekeeper.R
 import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
+import com.samplural.fivecrownsscorekeeper.ui.templates.CompactOutlinedTextField
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,7 +131,7 @@ fun HomeApp(
                             text = { Text("Settings") },
                             leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Filled.Settings,
+                                    imageVector = Icons.Outlined.Settings,
                                     contentDescription = "Settings Button",
                                 )
                             }
@@ -168,7 +171,8 @@ fun HomeApp(
                 onChangeScore = { id, index, score ->
                     viewModel.updatePlayerScoreByIndex(id, index, score)
                 },
-                onDeletePlayer = { id -> viewModel.deletePlayerById(id) }
+                onDeletePlayer = { id -> viewModel.deletePlayerById(id) },
+                formatScoreAdd = { viewModel.formatScoreAdd(it) }
             )
         }
     }
@@ -182,6 +186,7 @@ fun HomeBody(
     checkScoreAdd: (String) -> Boolean,
     onChangeScore: (Int, Int, String) -> Unit,
     onDeletePlayer: (Int) -> Unit,
+    formatScoreAdd: (String) -> String,
     modifier: Modifier = Modifier
 ) {
     Log.d("DEBUG", "playersList: $playersList")
@@ -200,10 +205,12 @@ fun HomeBody(
                         onAddScore = onAddScore,
                         checkScoreAdd = checkScoreAdd,
                         onChangeScore = onChangeScore,
+                        formatScoreAdd = formatScoreAdd
                     )
                     IconButton(
                         onClick = { onDeletePlayer(player.id) },
-                        modifier = modifier.size(16.dp)
+                        modifier = modifier
+                            .size(16.dp)
                             .offset(y = (-20).dp),
                     ) {
                         Icon(
@@ -229,13 +236,14 @@ fun PlayerCard(
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
     checkScoreAdd: (String) -> Boolean,
-    onChangeScore: (Int, Int, String) -> Unit
+    onChangeScore: (Int, Int, String) -> Unit,
+    formatScoreAdd: (String) -> String
 ) {
 
     Card(
         modifier = modifier
             .padding(horizontal = 4.dp)
-            .widthIn(min = 112.dp, max = 160.dp),
+            .widthIn(min = 160.dp, max = 160.dp),
     ) {
 
         // Player Details And Score Card
@@ -255,7 +263,7 @@ fun PlayerCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
+                CompactOutlinedTextField(
                     value = textName,
                     onValueChange = {
                         textName = it
@@ -270,6 +278,7 @@ fun PlayerCard(
                     modifier = modifier,
                     singleLine = true,
                     shape = MaterialTheme.shapes.large,
+                    contentPadding = contentPadding()
                 )
 
             }
@@ -284,10 +293,30 @@ fun PlayerCard(
                 0
             }
 
-            Text(
-                text = "Total: $totalScore",
-                modifier = modifier.padding(vertical = 8.dp),
-            )
+            Row (
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Text(
+                    text = "Total: $totalScore",
+                    softWrap = true,
+                    modifier = modifier.weight(10f)
+                )
+                IconButton(
+                    onClick = {
+                    },
+                    modifier = modifier
+                        .size(36.dp)
+
+                    ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.delete_sweep),
+                        contentDescription = "Delete Score Button",
+                    )
+                }
+            }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
@@ -295,8 +324,7 @@ fun PlayerCard(
             if (validScoreCard) {
                 LazyColumn(
                     modifier = modifier
-                        .padding(vertical = 8.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
                 ) {
                     itemsIndexed(playerScores.split(scoreSeperator)) { index, it ->
                         ScoreLine(
@@ -305,7 +333,6 @@ fun PlayerCard(
                             score = it,
                             checkScoreAdd = checkScoreAdd,
                             onChangeScore = onChangeScore,
-                            modifier = modifier.padding(vertical = 4.dp)
                         )
                     }
                 }
@@ -330,7 +357,7 @@ fun PlayerCard(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = modifier.padding(top = 8.dp)
+            modifier = modifier.padding(top = 16.dp)
         ) {
             var scoreAdd by rememberSaveable { mutableStateOf("0") }
 
@@ -349,12 +376,10 @@ fun PlayerCard(
                         contentDescription = "Add Score Button",
                     )
                 }
-                OutlinedTextField(
+                CompactOutlinedTextField(
                     value = scoreAdd,
                     onValueChange = {
-                        if (checkScoreAdd(it)) {
-                            scoreAdd = it
-                        }
+                        scoreAdd = formatScoreAdd(it)
                     },
                     label = { Text("") },
                     modifier = modifier
@@ -401,15 +426,13 @@ fun ScoreLine(
     checkScoreAdd: (String) -> Boolean,
     onChangeScore: (Int, Int, String) -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
+
         var currentScore by rememberSaveable { mutableStateOf(score) }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            modifier = modifier.fillMaxSize()
         ) {
             IconButton(
                 onClick = {
@@ -417,14 +440,14 @@ fun ScoreLine(
                     onChangeScore(playerId, index, currentScore)
 
                 },
-                modifier = modifier.weight(9f),
+                modifier = modifier.size(32.dp)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Add Score Button",
                 )
             }
-            OutlinedTextField(
+            CompactOutlinedTextField(
                 value = currentScore,
                 onValueChange = {
                     if (checkScoreAdd(it)) {
@@ -434,8 +457,8 @@ fun ScoreLine(
                 },
                 label = { Text("") },
                 modifier = modifier
-                    .widthIn(max = 72.dp)
-                    .weight(10f),
+                    .heightIn(max = 40.dp)
+                    .weight(1f),
                 singleLine = true,
                 shape = MaterialTheme.shapes.extraSmall,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -447,7 +470,7 @@ fun ScoreLine(
                     onChangeScore(playerId, index, currentScore)
 
                 },
-                modifier = modifier.weight(9f),
+                modifier = modifier.size(32.dp),
 
                 ) {
                 Icon(
@@ -455,6 +478,20 @@ fun ScoreLine(
                     contentDescription = "Add Score Button",
                 )
             }
-        }
+
+            IconButton(
+                onClick = {
+                },
+                modifier = modifier
+                    .size(16.dp)
+                    .padding(start = 4.dp),
+
+                ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete Score Button",
+                )
+            }
+
     }
 }

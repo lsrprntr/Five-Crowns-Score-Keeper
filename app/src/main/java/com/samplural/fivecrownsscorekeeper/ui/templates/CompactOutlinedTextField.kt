@@ -98,7 +98,7 @@ fun CompactOutlinedTextField(
                         isError = isError,
                         interactionSource = interactionSource,
                         colors = colors,
-                        shape = shape
+                        shape = shape,
                     )
                 }
 
