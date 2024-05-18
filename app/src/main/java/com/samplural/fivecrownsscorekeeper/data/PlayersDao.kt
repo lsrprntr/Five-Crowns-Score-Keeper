@@ -34,5 +34,7 @@ interface PlayersDao {
 
     @Query("UPDATE players SET scores = ''")
     suspend fun resetAllPlayerScores()
+    @Query("DELETE FROM players WHERE id = :id")
+    suspend fun deletePlayerById(id: Int)
 
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.samplural.fivecrownsscorekeeper.PlayersApplication
 import com.samplural.fivecrownsscorekeeper.ui.screens.HomeAppViewModel
+import com.samplural.fivecrownsscorekeeper.ui.screens.SettingsViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -18,6 +19,11 @@ object AppViewModelProvider {
                 playersApplication().container.playersRepository
             )
         }
+        initializer {
+            SettingsViewModel(
+            )
+        }
+
     }
 }
 

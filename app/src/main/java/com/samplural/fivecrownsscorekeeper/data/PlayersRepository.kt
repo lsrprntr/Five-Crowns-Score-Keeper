@@ -12,5 +12,6 @@ interface PlayersRepository {
     suspend fun updatePlayerScore(id: Int, score: String)
     suspend fun getPlayerScores(id: Int): String
     suspend fun resetAllPlayerScores()
+    suspend fun deletePlayerById(id: Int)
 
 }

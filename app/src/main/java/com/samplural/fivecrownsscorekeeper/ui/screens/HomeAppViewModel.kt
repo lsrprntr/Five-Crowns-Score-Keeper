@@ -78,6 +78,12 @@ class HomeAppViewModel(
         return true
     }
 
+    fun deletePlayerById(id: Int) {
+        viewModelScope.launch {
+            playersRepository.deletePlayerById(id)
+        }
+    }
+
 
 }
 

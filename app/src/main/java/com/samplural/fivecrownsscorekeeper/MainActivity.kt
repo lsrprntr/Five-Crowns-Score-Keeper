@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.compose.AppTheme
-import com.samplural.fivecrownsscorekeeper.ui.screens.HomeApp
+import com.samplural.fivecrownsscorekeeper.ui.NavApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
-                    HomeApp(modifier = Modifier.padding(paddingValues))
+                    NavApp(modifier = Modifier.padding(paddingValues))
                 }
             }
         }

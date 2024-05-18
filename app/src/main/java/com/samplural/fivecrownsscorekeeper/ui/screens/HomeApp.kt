@@ -2,14 +2,14 @@ package com.samplural.fivecrownsscorekeeper.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
@@ -47,11 +48,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.samplural.fivecrownsscorekeeper.R
 import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
@@ -61,11 +65,11 @@ import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
 @Composable
 fun HomeApp(
     modifier: Modifier = Modifier,
-    viewModel: HomeAppViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: HomeAppViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    onSettingsClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var dropDownMenuExpanded by remember { mutableStateOf(false) }
-
 
     Scaffold(
         topBar = {
@@ -101,7 +105,7 @@ fun HomeApp(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Filled.Refresh,
-                                    contentDescription = "Delete All Button",
+                                    contentDescription = "Reset All Scores Button",
                                 )
                             }
                         )
@@ -113,7 +117,19 @@ fun HomeApp(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "Delete All Button",
+                                    contentDescription = "Delete All Players Button",
+                                )
+                            }
+                        )
+                        DropdownMenuItem(onClick = {
+                                onSettingsClick()
+                                dropDownMenuExpanded = false}
+                            ,
+                            text = { Text("Settings") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Settings,
+                                    contentDescription = "Settings Button",
                                 )
                             }
                         )
@@ -122,7 +138,7 @@ fun HomeApp(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Outlined.Info,
-                                    contentDescription = "Delete All Button",
+                                    contentDescription = "About Me Button",
                                 )
                             }
                         )
@@ -137,9 +153,9 @@ fun HomeApp(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-
             HomeBody(
                 playersList = uiState.player,
+                modifier = modifier.padding(top = 16.dp),
                 onNameChange = { id, name ->
                     viewModel.updatePlayerName(id, name)
                 },
@@ -151,9 +167,9 @@ fun HomeApp(
                 },
                 onChangeScore = { id, index, score ->
                     viewModel.updatePlayerScoreByIndex(id, index, score)
-                }
+                },
+                onDeletePlayer = { id -> viewModel.deletePlayerById(id) }
             )
-
         }
     }
 }
@@ -165,8 +181,8 @@ fun HomeBody(
     onAddScore: (Int, String) -> Unit,
     checkScoreAdd: (String) -> Boolean,
     onChangeScore: (Int, Int, String) -> Unit,
+    onDeletePlayer: (Int) -> Unit,
     modifier: Modifier = Modifier
-
 ) {
     Log.d("DEBUG", "playersList: $playersList")
     if (playersList.isNotEmpty()) {
@@ -175,13 +191,28 @@ fun HomeBody(
         ) {
 
             items(playersList) { player ->
-                PlayerCard(
-                    player = player,
-                    onNameChange = onNameChange,
-                    onAddScore = onAddScore,
-                    checkScoreAdd = checkScoreAdd,
-                    onChangeScore = onChangeScore,
-                )
+                Box(
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    PlayerCard(
+                        player = player,
+                        onNameChange = onNameChange,
+                        onAddScore = onAddScore,
+                        checkScoreAdd = checkScoreAdd,
+                        onChangeScore = onChangeScore,
+                    )
+                    IconButton(
+                        onClick = { onDeletePlayer(player.id) },
+                        modifier = modifier.size(16.dp)
+                            .offset(y = (-20).dp),
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.outline,
+                        )
+                    }
+                }
             }
 
         }
@@ -200,39 +231,48 @@ fun PlayerCard(
     checkScoreAdd: (String) -> Boolean,
     onChangeScore: (Int, Int, String) -> Unit
 ) {
+
     Card(
         modifier = modifier
             .padding(horizontal = 4.dp)
             .widthIn(min = 112.dp, max = 160.dp),
     ) {
+
         // Player Details And Score Card
         Column(
             modifier = modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .weight(1f)
-                .fillMaxSize(),
+                .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
         ) {
 
             var textName by rememberSaveable { mutableStateOf(player.name) }
 
-            OutlinedTextField(
-                value = textName,
-                onValueChange = {
-                    textName = it
-                    onNameChange(player.id, textName)
-                },
-                placeholder = {
-                    Text(
-                        text = "Player Name",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                },
-                modifier = modifier.width(intrinsicSize = IntrinsicSize.Max),
-                singleLine = true,
-                shape = MaterialTheme.shapes.large,
-            )
+
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = textName,
+                    onValueChange = {
+                        textName = it
+                        onNameChange(player.id, textName)
+                    },
+                    placeholder = {
+                        Text(
+                            text = "Player Name",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    },
+                    modifier = modifier,
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.large,
+                )
+
+            }
 
             val playerScores = player.scores
 
@@ -282,12 +322,9 @@ fun PlayerCard(
                 }
             }
 
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
         }
 
-        HorizontalDivider(
-            modifier = modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outline
-        )
 
         // Score Addition Buttons
         Column(

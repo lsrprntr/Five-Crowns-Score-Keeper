@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Five Crowns Score Keeper</string>
+    <string name="app_name_general">Score Keeper</string>
+    <string name="player_name">Player Name</string>
+    <string name="total_colon">Total: </string>
+
 </resources>
