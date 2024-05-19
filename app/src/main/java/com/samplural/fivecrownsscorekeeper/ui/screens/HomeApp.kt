@@ -454,7 +454,7 @@ fun ScoreLine(
                     currentScore = (currentScore.toInt() - 1).toString()
                     onChangeScore(scoreIndex, currentScore)
                 } else {
-                    currentScore = formatScoreAdd(currentScore)
+                    currentScore = "0"
                     onChangeScore(scoreIndex, currentScore)
                 }
 
