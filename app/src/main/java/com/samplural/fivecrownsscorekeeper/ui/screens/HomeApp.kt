@@ -76,83 +76,69 @@ fun HomeApp(
 
     var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text("Score Keeper")
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.addNewPlayer() }) {
+    Scaffold(topBar = {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Text("Score Keeper")
+            },
+            actions = {
+                IconButton(onClick = { viewModel.addNewPlayer() }) {
+                    Icon(
+                        imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
+                    )
+                }
+                IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "More Options",
+                    )
+                }
+                DropdownMenu(expanded = dropDownMenuExpanded,
+                    onDismissRequest = { dropDownMenuExpanded = false }) {
+                    DropdownMenuItem(onClick = {
+                        viewModel.resetAllPlayerScores()
+                        dropDownMenuExpanded = false
+                    }, text = { Text("Reset All Scores") }, leadingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = "Reset All Scores Button",
                         )
-                    }
-                    IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
+                    })
+                    DropdownMenuItem(onClick = {
+                        viewModel.deleteAllPlayers()
+                        dropDownMenuExpanded = false
+                    }, text = { Text("Delete All Players") }, leadingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "More Options",
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "Delete All Players Button",
                         )
-                    }
-                    DropdownMenu(
-                        expanded = dropDownMenuExpanded,
-                        onDismissRequest = { dropDownMenuExpanded = false }
-                    ) {
-                        DropdownMenuItem(onClick = {
-                            viewModel.resetAllPlayerScores()
-                            dropDownMenuExpanded = false
-                        },
-                            text = { Text("Reset All Scores") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Filled.Refresh,
-                                    contentDescription = "Reset All Scores Button",
-                                )
-                            }
+                    })
+                    DropdownMenuItem(onClick = {
+                        onSettingsClick()
+                        dropDownMenuExpanded = false
+                    }, text = { Text("Settings") }, leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = "Settings Button",
                         )
-                        DropdownMenuItem(onClick = {
-                            viewModel.deleteAllPlayers()
-                            dropDownMenuExpanded = false
-                        },
-                            text = { Text("Delete All Players") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "Delete All Players Button",
-                                )
-                            }
-                        )
-                        DropdownMenuItem(onClick = {
-                            onSettingsClick()
-                            dropDownMenuExpanded = false
-                        },
-                            text = { Text("Settings") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Settings,
-                                    contentDescription = "Settings Button",
-                                )
-                            }
-                        )
-                        DropdownMenuItem(onClick = { /* TODO:AddAboutMe */ },
-                            text = { Text("About") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Info,
-                                    contentDescription = "About Me Button",
-                                )
-                            }
-                        )
-                    }
+                    })
+                    DropdownMenuItem(onClick = { /* TODO:AddAboutMe */ },
+                        text = { Text("About") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = "About Me Button",
+                            )
+                        })
+                }
 
-                },
-            )
-        }
-    ) { paddingValues ->
+            },
+        )
+    }) { paddingValues ->
         Column(
             modifier = modifier
                 .padding(paddingValues)
@@ -200,7 +186,7 @@ fun HomeBody(
             modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
         ) {
 
-            items(playersList, key = {it.id}) { player ->
+            items(playersList, key = { it.id }) { player ->
                 Box(
                     contentAlignment = Alignment.TopEnd
                 ) {
@@ -315,16 +301,12 @@ fun PlayerCard(
                     .padding(vertical = 4.dp)
             ) {
                 Text(
-                    text = "Total: $totalScore",
-                    softWrap = true,
-                    modifier = modifier.weight(10f)
+                    text = "Total: $totalScore", softWrap = true, modifier = modifier.weight(10f)
                 )
                 IconButton(
                     onClick = {
                         onResetPlayerScore(player.id)
-                    },
-                    modifier = modifier
-                        .size(36.dp)
+                    }, modifier = modifier.size(36.dp)
 
                 ) {
                     Icon(
@@ -337,12 +319,10 @@ fun PlayerCard(
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
 
-
             // Score Card Layout
             if (validScoreCard) {
                 LazyColumn(
-                    modifier = modifier
-                        .fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                 ) {
                     items(scores, key = { it.scoreId }) { item ->
 
@@ -364,8 +344,7 @@ fun PlayerCard(
                     modifier = modifier.fillMaxSize()
                 ) {
                     Text(
-                        text = "No Scores Added",
-                        textAlign = TextAlign.Center
+                        text = "No Scores Added", textAlign = TextAlign.Center
                     )
                 }
             }
@@ -433,13 +412,12 @@ fun PlayerCard(
                 }
             }
             IconButton(onClick = {
-                if (checkScoreAdd(scoreAdd)){
+                if (checkScoreAdd(scoreAdd)) {
                     onAddScore(player.id, scoreAdd)
                 } else {
                     scoreAdd = formatScoreAdd(scoreAdd)
                 }
-            }
-            ) {
+            }) {
                 Icon(
                     imageVector = Icons.Filled.AddCircle,
                     contentDescription = "Add Score to Row",
@@ -466,7 +444,8 @@ fun ScoreLine(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(vertical = 1.dp)
     ) {
         IconButton(
@@ -479,8 +458,7 @@ fun ScoreLine(
                     onChangeScore(scoreIndex, currentScore)
                 }
 
-            },
-            modifier = modifier.size(32.dp)
+            }, modifier = modifier.size(32.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -512,7 +490,7 @@ fun ScoreLine(
                     currentScore = (currentScore.toInt() + 1).toString()
                     onChangeScore(scoreIndex, currentScore)
                 } else {
-                    currentScore = formatScoreAdd(currentScore)
+                    currentScore = "0"
                     onChangeScore(scoreIndex, currentScore)
                 }
             },
