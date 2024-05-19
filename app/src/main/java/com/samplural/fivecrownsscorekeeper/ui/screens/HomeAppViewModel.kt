@@ -35,6 +35,12 @@ class HomeAppViewModel(
             playersRepository.insert(Players(id = 0, name = ""))
         }
     }
+    fun addScoreToPlayer(playerId: Int, score: String) {
+        viewModelScope.launch {
+            val scores = Scores(scoreId = 0, playerId = playerId, scores = score)
+            playersRepository.addScoreToPlayerId(scores)
+        }
+    }
 
     fun updatePlayerName(id: Int, name: String) {
         viewModelScope.launch {
@@ -63,32 +69,17 @@ class HomeAppViewModel(
         }
     }
 
-    // Should return true if number input is valid
-    fun checkScoreAdd(score: String): Boolean {
-        return score.toIntOrNull() != null
-    }
-
-    // Should return string if number input is invalid
-    fun formatScoreAdd(score: String): String {
-        if (score.toIntOrNull() == null) {
-            return score.trimStart('0')
-        }
-        return score.trimStart('0').toInt().toString()
-    }
 
     fun deletePlayerById(id: Int) {
         viewModelScope.launch {
             playersRepository.deletePlayerById(id)
         }
     }
-
     fun resetPlayerScoreById(id: Int) {
         viewModelScope.launch {
             playersRepository.resetPlayerScoreById(id)
         }
     }
-
-
     fun deletePlayerScoreById(scoreId: Int) {
         viewModelScope.launch {
             playersRepository.deleteScoreById(scoreId)
@@ -96,11 +87,22 @@ class HomeAppViewModel(
         }
     }
 
-    fun addScoreToPlayer(playerId: Int, score: String) {
-        viewModelScope.launch {
-            val scores = Scores(scoreId = 0, playerId = playerId, scores = score)
-            playersRepository.addScoreToPlayerId(scores)
+
+
+    // Should return true if number input is valid
+    fun checkScoreAdd(score: String): Boolean {
+        return score.toIntOrNull() != null
+    }
+
+    // Should return string if number input is invalid
+    fun formatScoreAdd(score: String): String {
+        // Captures negative dash and numbers after it trimming zeros
+        val regex = Regex("(-?)0*(\\d*\$)")
+        val match = regex.find(score)
+        if (match != null){
+            return match.groupValues.takeLast(2).joinToString("")
         }
+        return ""
     }
 }
 
