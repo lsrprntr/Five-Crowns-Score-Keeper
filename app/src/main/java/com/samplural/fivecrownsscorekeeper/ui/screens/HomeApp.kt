@@ -1,6 +1,5 @@
 package com.samplural.fivecrownsscorekeeper.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.samplural.fivecrownsscorekeeper.R
 import com.samplural.fivecrownsscorekeeper.data.Players
+import com.samplural.fivecrownsscorekeeper.data.Scores
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
 import com.samplural.fivecrownsscorekeeper.ui.templates.CompactOutlinedTextField
@@ -72,8 +72,9 @@ fun HomeApp(
     onSettingsClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var dropDownMenuExpanded by remember { mutableStateOf(false) }
+    val scoreUiState by viewModel.scoreUiState.collectAsState()
 
+    var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -159,26 +160,22 @@ fun HomeApp(
         ) {
             HomeBody(
                 playersList = uiState.player,
+                scoresList = scoreUiState.scores,
                 modifier = modifier.padding(top = 16.dp),
                 onNameChange = { id, name ->
                     viewModel.updatePlayerName(id, name)
                 },
-                onAddScore = { id, score ->
-                    viewModel.updatePlayerScore(id, score)
+                onAddScore = { playerId, score ->
+                    viewModel.addScoreToPlayer(playerId, score)
                 },
-                checkScoreAdd = {
-                    viewModel.checkScoreAdd(it)
+                checkScoreAdd = { viewModel.checkScoreAdd(it) },
+                onChangeScore = { scoreIndex, score ->
+                    viewModel.updatePlayerScoreByIndex(scoreIndex, score)
                 },
-                onChangeScore = { id, index, score ->
-                    viewModel.updatePlayerScoreByIndex(id, index, score)
-                },
-                onDeletePlayer = { id -> viewModel.deletePlayerById(id) },
+                onDeletePlayer = { viewModel.deletePlayerById(it) },
                 formatScoreAdd = { viewModel.formatScoreAdd(it) },
-                onDeleteScore = { id, index ->
-                    viewModel.deletePlayerScoreById(id, index)
-                                },
+                onDeleteScore = { viewModel.deletePlayerScoreById(it) },
                 onResetPlayerScore = { viewModel.resetPlayerScoreById(it) },
-                forceupdate = {  }
             )
         }
     }
@@ -187,18 +184,17 @@ fun HomeApp(
 @Composable
 fun HomeBody(
     playersList: List<Players>,
+    scoresList: List<Scores>,
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
     checkScoreAdd: (String) -> Boolean,
-    onChangeScore: (Int, Int, String) -> Unit,
+    onChangeScore: (Int, String) -> Unit,
     onDeletePlayer: (Int) -> Unit,
     formatScoreAdd: (String) -> String,
-    onDeleteScore: (Int, Int) -> Unit,
+    onDeleteScore: (Int) -> Unit,
     onResetPlayerScore: (Int) -> Unit,
-    forceupdate: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    Log.d("DEBUG", "playersList: $playersList")
     if (playersList.isNotEmpty()) {
         LazyRow(
             modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
@@ -208,8 +204,10 @@ fun HomeBody(
                 Box(
                     contentAlignment = Alignment.TopEnd
                 ) {
+                    val filteredScores = scoresList.filter { it.playerId == player.id }
                     PlayerCard(
                         player = player,
+                        scores = filteredScores,
                         onNameChange = onNameChange,
                         onAddScore = onAddScore,
                         checkScoreAdd = checkScoreAdd,
@@ -217,7 +215,6 @@ fun HomeBody(
                         formatScoreAdd = formatScoreAdd,
                         onDeleteScore = onDeleteScore,
                         onResetPlayerScore = onResetPlayerScore,
-                        UpdateScore = forceupdate
                     )
                     IconButton(
                         onClick = { onDeletePlayer(player.id) },
@@ -248,17 +245,17 @@ fun PlayerCard(
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
     checkScoreAdd: (String) -> Boolean,
-    onChangeScore: (Int, Int, String) -> Unit,
+    onChangeScore: (Int, String) -> Unit,
     formatScoreAdd: (String) -> String,
-    onDeleteScore: (Int, Int) -> Unit,
+    onDeleteScore: (Int) -> Unit,
     onResetPlayerScore: (Int) -> Unit,
-    UpdateScore: () -> Unit
+    scores: List<Scores>,
 ) {
 
-    var playerScores = player.scores
+    val justScores = scores.map { it.scores }
+    val playerScores = justScores.joinToString(scoreSeperator)
 
     val validScoreCard = playerScores.isNotEmpty() || (playerScores == "0")
-
     val totalScore = if (validScoreCard) {
         playerScores.split(scoreSeperator).sumOf { it.trimStart(' ').toInt() }
     } else {
@@ -339,9 +336,6 @@ fun PlayerCard(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
-            val playersScoresList = playerScores.split(scoreSeperator)
-            val playersScoresIndex = playersScoresList.withIndex()
-            val test = playersScoresIndex.map {  (index, score) -> ScoresList(index,score)}
 
 
             // Score Card Layout
@@ -350,22 +344,17 @@ fun PlayerCard(
                     modifier = modifier
                         .fillMaxSize(),
                 ) {
-                    items(test, key = {it -> it.id}) { item ->
+                    items(scores, key = { it.scoreId }) { item ->
+
                         ScoreLine(
-                            playerId = player.id,
-                            index = item.id,
-                            score = item.score,
+                            scoreIndex = item.scoreId,
+                            score = item.scores,
                             checkScoreAdd = checkScoreAdd,
                             onChangeScore = onChangeScore,
-                            onDeleteScore = { id, scoreIndex ->
-                                onDeleteScore(id, scoreIndex)
-                                val tester = playerScores.split(scoreSeperator)
-                                val newScore = tester.toMutableList()
-                                newScore.removeAt(scoreIndex)
-                                playerScores = newScore.joinToString(scoreSeperator)
-                                UpdateScore()
-                            }
+                            onDeleteScore = onDeleteScore,
+                            formatScoreAdd = formatScoreAdd
                         )
+
                     }
                 }
             } else {
@@ -401,6 +390,8 @@ fun PlayerCard(
                     onClick = {
                         if (checkScoreAdd(scoreAdd)) {
                             scoreAdd = (scoreAdd.toInt() - 1).toString()
+                        } else {
+                            scoreAdd = "0"
                         }
                     },
                     modifier = modifier.weight(9f),
@@ -428,6 +419,8 @@ fun PlayerCard(
                     onClick = {
                         if (checkScoreAdd(scoreAdd)) {
                             scoreAdd = (scoreAdd.toInt() + 1).toString()
+                        } else {
+                            scoreAdd = "0"
                         }
                     },
                     modifier = modifier.weight(9f),
@@ -440,7 +433,11 @@ fun PlayerCard(
                 }
             }
             IconButton(onClick = {
-                onAddScore(player.id, scoreAdd)
+                if (checkScoreAdd(scoreAdd)){
+                    onAddScore(player.id, scoreAdd)
+                } else {
+                    scoreAdd = formatScoreAdd(scoreAdd)
+                }
             }
             ) {
                 Icon(
@@ -456,12 +453,12 @@ fun PlayerCard(
 @Composable
 fun ScoreLine(
     modifier: Modifier = Modifier,
-    playerId: Int,
-    index: Int,
+    scoreIndex: Int,
     score: String,
     checkScoreAdd: (String) -> Boolean,
-    onChangeScore: (Int, Int, String) -> Unit,
-    onDeleteScore: (Int, Int) -> Unit
+    onChangeScore: (Int, String) -> Unit,
+    onDeleteScore: (Int) -> Unit,
+    formatScoreAdd: (String) -> String
 ) {
 
     var currentScore by remember { mutableStateOf(score) }
@@ -470,12 +467,16 @@ fun ScoreLine(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = modifier.fillMaxSize()
+            .padding(vertical = 1.dp)
     ) {
         IconButton(
             onClick = {
                 if (checkScoreAdd(currentScore)) {
                     currentScore = (currentScore.toInt() - 1).toString()
-                    onChangeScore(playerId, index, currentScore)
+                    onChangeScore(scoreIndex, currentScore)
+                } else {
+                    currentScore = formatScoreAdd(currentScore)
+                    onChangeScore(scoreIndex, currentScore)
                 }
 
             },
@@ -491,7 +492,7 @@ fun ScoreLine(
             onValueChange = {
                 if (checkScoreAdd(it)) {
                     currentScore = it
-                    onChangeScore(playerId, index, it)
+                    onChangeScore(scoreIndex, it)
                 } else {
                     currentScore = it
                 }
@@ -509,7 +510,10 @@ fun ScoreLine(
             onClick = {
                 if (checkScoreAdd(currentScore)) {
                     currentScore = (currentScore.toInt() + 1).toString()
-                    onChangeScore(playerId, index, currentScore)
+                    onChangeScore(scoreIndex, currentScore)
+                } else {
+                    currentScore = formatScoreAdd(currentScore)
+                    onChangeScore(scoreIndex, currentScore)
                 }
             },
             modifier = modifier.size(32.dp),
@@ -522,7 +526,7 @@ fun ScoreLine(
         }
         IconButton(
             onClick = {
-                onDeleteScore(playerId, index)
+                onDeleteScore(scoreIndex)
                 currentScore = score
             },
             modifier = modifier
