@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.PlayersRepository
 import com.samplural.fivecrownsscorekeeper.data.Scores
+import com.samplural.fivecrownsscorekeeper.data.SettingsRepository
 import com.samplural.fivecrownsscorekeeper.ui.screens.PlayerCardUiState.Companion.TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 
 class HomeAppViewModel(
     private val playersRepository: PlayersRepository,
+    settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<PlayerCardUiState> =
@@ -29,6 +31,7 @@ class HomeAppViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = ScoresUiState()
         )
+
 
     fun addNewPlayer() {
         viewModelScope.launch {
