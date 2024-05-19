@@ -9,11 +9,12 @@ class LocalPlayersRepository(private val playersDao: PlayersDao): PlayersReposit
     override fun getAllPlayers(): Flow<List<Players>> = playersDao.getAllPlayers()
     override suspend fun deleteAllPlayers() = playersDao.deleteAllPlayers()
     override suspend fun updatePlayerName(id: Int, name: String) = playersDao.updatePlayerName(id, name)
-    override suspend fun updatePlayerScore(id: Int, score: String) = playersDao.updatePlayerScore(id, score)
-    override suspend fun getPlayerScores(id: Int): String = playersDao.getPlayerScores(id)
     override suspend fun resetAllPlayerScores() = playersDao.resetAllPlayerScores()
     override suspend fun deletePlayerById(id: Int) = playersDao.deletePlayerById(id)
     override suspend fun resetPlayerScoreById(id: Int) = playersDao.resetPlayerScoresById(id)
     override suspend fun deletePlayerScoreByIdIndex(playerId: Int, index: Int) {}
-    override suspend fun getPlayerById(id: Int) = playersDao.getPlayerById(id)
+    override fun getAllScores(): Flow<List<Scores>> = playersDao.getAllScores()
+    override suspend fun deleteScoreById(scoreId: Int) = playersDao.deleteScoreById(scoreId)
+    override suspend fun updatePlayerScoreByIndex(scoreIndex: Int, score: String) = playersDao.updatePlayerScoreByIndex(scoreIndex, score)
+    override suspend fun addScoreToPlayerId(scores: Scores) = playersDao.addScoreToPlayerId(scores)
 }

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.PlayersRepository
 import com.samplural.fivecrownsscorekeeper.data.Scores
-import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.screens.PlayerCardUiState.Companion.TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,19 +15,6 @@ import kotlinx.coroutines.launch
 class HomeAppViewModel(
     private val playersRepository: PlayersRepository,
 ) : ViewModel() {
-
-    /*
-    private val _uiState = MutableStateFlow(PlayerCardUiState())
-    val uiState: StateFlow<PlayerCardUiState> = _uiState
-
-    init {
-        viewModelScope.launch {
-            playersRepository.getAllPlayers().collect { it ->
-                _uiState.value = PlayerCardUiState(it)
-            }
-        }
-    }
-    */
 
     val uiState: StateFlow<PlayerCardUiState> =
         playersRepository.getAllPlayers().map { PlayerCardUiState(it) }.stateIn(
@@ -46,7 +32,7 @@ class HomeAppViewModel(
 
     fun addNewPlayer() {
         viewModelScope.launch {
-            playersRepository.insert(Players(id = 0, name = "", scores = ""))
+            playersRepository.insert(Players(id = 0, name = ""))
         }
     }
 
@@ -57,28 +43,10 @@ class HomeAppViewModel(
         }
     }
 
-    fun updatePlayerScore(id: Int, score: String) {
+    fun updatePlayerScoreByIndex(scoreIndex: Int, score: String) {
         if (checkScoreAdd(score)) {
             viewModelScope.launch {
-                // Current Scores and check if first score
-                val scores = playersRepository.getPlayerScores(id)
-                if (scores != "") {
-                    val updatedScores = scores + scoreSeperator + score
-                    playersRepository.updatePlayerScore(id, updatedScores)
-                } else {
-                    playersRepository.updatePlayerScore(id, score)
-                }
-            }
-        }
-    }
-
-    fun updatePlayerScoreByIndex(id: Int, index: Int, score: String) {
-        if (checkScoreAdd(score)) {
-            viewModelScope.launch {
-                val scoresList =
-                    playersRepository.getPlayerScores(id).split(scoreSeperator).toMutableList()
-                scoresList[index] = score
-                playersRepository.updatePlayerScore(id, scoresList.joinToString(scoreSeperator))
+                playersRepository.updatePlayerScoreByIndex(scoreIndex, score)
             }
         }
     }
@@ -121,16 +89,17 @@ class HomeAppViewModel(
     }
 
 
-    fun deletePlayerScoreById(playerId: Int, index: Int) {
+    fun deletePlayerScoreById(scoreId: Int) {
         viewModelScope.launch {
-            val player = playersRepository.getPlayerById(playerId)
-            val scores = player.scores
-            val updatedScores = scores.split(scoreSeperator).toMutableList()
-            updatedScores.removeAt(index)
-            val newPlayerObject = Players(player.id, player.name, updatedScores.joinToString(scoreSeperator))
-            playersRepository.deletePlayerById(playerId)
-            playersRepository.insert(newPlayerObject)
+            playersRepository.deleteScoreById(scoreId)
 
+        }
+    }
+
+    fun addScoreToPlayer(playerId: Int, score: String) {
+        viewModelScope.launch {
+            val scores = Scores(scoreId = 0, playerId = playerId, scores = score)
+            playersRepository.addScoreToPlayerId(scores)
         }
     }
 }
@@ -150,7 +119,4 @@ data class PlayerCardUiState(
 data class ScoresUiState(
     val scores: List<Scores> = emptyList()
 ){
-    companion object {
-        const val TIMEOUT_MILLIS = 5_000L
-    }
 }

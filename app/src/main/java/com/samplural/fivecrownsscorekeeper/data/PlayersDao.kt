@@ -22,29 +22,31 @@ interface PlayersDao {
     @Query("SELECT * from players ORDER BY id ASC")
     fun getAllPlayers(): Flow<List<Players>>
 
-    @Query("SELECT id,name,scores FROM players WHERE id = :id LIMIT 1")
-    suspend fun getPlayerById(id: Int): Players
-
     @Query("DELETE FROM players")
     suspend fun deleteAllPlayers()
 
     @Query("UPDATE players SET name = :name WHERE id = :id")
     suspend fun updatePlayerName(id: Int, name: String)
-    @Query("UPDATE players SET scores = :score WHERE id = :id")
-    suspend fun updatePlayerScore(id: Int, score: String)
-    @Query("SELECT scores FROM players WHERE id = :id LIMIT 1")
-    suspend fun getPlayerScores(id: Int): String
 
-    @Query("UPDATE players SET scores = ''")
+    @Query("DELETE FROM scores")
     suspend fun resetAllPlayerScores()
     @Query("DELETE FROM players WHERE id = :id")
     suspend fun deletePlayerById(id: Int)
 
-    @Query("UPDATE players SET scores = '' WHERE id = :id")
-    suspend fun resetPlayerScoresById(id: Int)
+    @Query("DELETE FROM scores WHERE playerid = :playerId")
+    suspend fun resetPlayerScoresById(playerId: Int)
 
     @Query("SELECT scores FROM scores WHERE playerId = :playerId")
     fun getAllPlayerScoresById(playerId: Int): Flow<List<String>>
+    @Query("SELECT * from scores ORDER BY scoreId ASC")
 
+    fun getAllScores(): Flow<List<Scores>>
+    @Query("DELETE FROM scores WHERE scoreId = :scoreId")
+
+    suspend fun deleteScoreById(scoreId: Int)
+    @Query("UPDATE scores SET scores = :score WHERE scoreId = :scoreIndex")
+    suspend fun updatePlayerScoreByIndex(scoreIndex: Int, score: String)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addScoreToPlayerId(scores: Scores)
 
 }
