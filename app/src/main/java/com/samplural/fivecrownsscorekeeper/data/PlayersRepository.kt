@@ -16,5 +16,6 @@ interface PlayersRepository {
     suspend fun resetPlayerScoreById(id: Int)
     suspend fun deletePlayerScoreByIdIndex(playerId:Int, index: Int)
     suspend fun getPlayerById(id: Int): Players
+    fun getAllScores(): Flow<List<Scores>>
 
 }

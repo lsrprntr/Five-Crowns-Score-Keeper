@@ -43,4 +43,8 @@ interface PlayersDao {
     @Query("UPDATE players SET scores = '' WHERE id = :id")
     suspend fun resetPlayerScoresById(id: Int)
 
+    @Query("SELECT scores FROM scores WHERE playerId = :playerId")
+    fun getAllPlayerScoresById(playerId: Int): Flow<List<String>>
+
+
 }

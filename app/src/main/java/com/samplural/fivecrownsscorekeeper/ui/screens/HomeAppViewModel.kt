@@ -4,21 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.PlayersRepository
+import com.samplural.fivecrownsscorekeeper.data.Scores
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.screens.PlayerCardUiState.Companion.TIMEOUT_MILLIS
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeAppViewModel(
     private val playersRepository: PlayersRepository,
 ) : ViewModel() {
 
+    /*
     private val _uiState = MutableStateFlow(PlayerCardUiState())
     val uiState: StateFlow<PlayerCardUiState> = _uiState
 
@@ -29,12 +28,20 @@ class HomeAppViewModel(
             }
         }
     }
+    */
 
-    val testuiState: StateFlow<PlayerCardUiState> =
+    val uiState: StateFlow<PlayerCardUiState> =
         playersRepository.getAllPlayers().map { PlayerCardUiState(it) }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = PlayerCardUiState()
+        )
+
+    val scoreUiState: StateFlow<ScoresUiState> =
+        playersRepository.getAllScores().map{ ScoresUiState(it) }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = ScoresUiState()
         )
 
     fun addNewPlayer() {
@@ -120,12 +127,10 @@ class HomeAppViewModel(
             val scores = player.scores
             val updatedScores = scores.split(scoreSeperator).toMutableList()
             updatedScores.removeAt(index)
-            val test = Players(player.id, player.name, updatedScores.joinToString(scoreSeperator))
-            playersRepository.update(test)
-            val tester = playersRepository.getAllPlayers().first()
-            _uiState.update {
-                it.copy(player = tester)
-            }
+            val newPlayerObject = Players(player.id, player.name, updatedScores.joinToString(scoreSeperator))
+            playersRepository.deletePlayerById(playerId)
+            playersRepository.insert(newPlayerObject)
+
         }
     }
 }
@@ -135,14 +140,17 @@ class HomeAppViewModel(
 
 
 data class PlayerCardUiState(
-    val player: List<Players> = emptyList()
+    val player: List<Players> = emptyList(),
 ) {
     companion object {
         const val TIMEOUT_MILLIS = 5_000L
     }
 }
 
-data class ScoresList(
-    val id: Int,
-    val score: String
-)
+data class ScoresUiState(
+    val scores: List<Scores> = emptyList()
+){
+    companion object {
+        const val TIMEOUT_MILLIS = 5_000L
+    }
+}

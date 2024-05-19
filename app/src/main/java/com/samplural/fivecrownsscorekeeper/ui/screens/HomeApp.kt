@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -72,8 +73,9 @@ fun HomeApp(
     onSettingsClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var dropDownMenuExpanded by remember { mutableStateOf(false) }
+    val scoreUiState by viewModel.scoreUiState.collectAsState()
 
+    var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -159,6 +161,7 @@ fun HomeApp(
         ) {
             HomeBody(
                 playersList = uiState.player,
+                scoresList = scoreUiState.scores,
                 modifier = modifier.padding(top = 16.dp),
                 onNameChange = { id, name ->
                     viewModel.updatePlayerName(id, name)
@@ -178,7 +181,6 @@ fun HomeApp(
                     viewModel.deletePlayerScoreById(id, index)
                                 },
                 onResetPlayerScore = { viewModel.resetPlayerScoreById(it) },
-                forceupdate = {  }
             )
         }
     }
@@ -187,6 +189,7 @@ fun HomeApp(
 @Composable
 fun HomeBody(
     playersList: List<Players>,
+    scoresList: List<String>,
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
     checkScoreAdd: (String) -> Boolean,
@@ -195,10 +198,8 @@ fun HomeBody(
     formatScoreAdd: (String) -> String,
     onDeleteScore: (Int, Int) -> Unit,
     onResetPlayerScore: (Int) -> Unit,
-    forceupdate: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    Log.d("DEBUG", "playersList: $playersList")
     if (playersList.isNotEmpty()) {
         LazyRow(
             modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
@@ -217,7 +218,6 @@ fun HomeBody(
                         formatScoreAdd = formatScoreAdd,
                         onDeleteScore = onDeleteScore,
                         onResetPlayerScore = onResetPlayerScore,
-                        UpdateScore = forceupdate
                     )
                     IconButton(
                         onClick = { onDeletePlayer(player.id) },
@@ -252,10 +252,9 @@ fun PlayerCard(
     formatScoreAdd: (String) -> String,
     onDeleteScore: (Int, Int) -> Unit,
     onResetPlayerScore: (Int) -> Unit,
-    UpdateScore: () -> Unit
 ) {
 
-    var playerScores = player.scores
+    val playerScores = player.scores
 
     val validScoreCard = playerScores.isNotEmpty() || (playerScores == "0")
 
@@ -340,8 +339,6 @@ fun PlayerCard(
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
             val playersScoresList = playerScores.split(scoreSeperator)
-            val playersScoresIndex = playersScoresList.withIndex()
-            val test = playersScoresIndex.map {  (index, score) -> ScoresList(index,score)}
 
 
             // Score Card Layout
@@ -350,22 +347,19 @@ fun PlayerCard(
                     modifier = modifier
                         .fillMaxSize(),
                 ) {
-                    items(test, key = {it -> it.id}) { item ->
-                        ScoreLine(
-                            playerId = player.id,
-                            index = item.id,
-                            score = item.score,
-                            checkScoreAdd = checkScoreAdd,
-                            onChangeScore = onChangeScore,
-                            onDeleteScore = { id, scoreIndex ->
-                                onDeleteScore(id, scoreIndex)
-                                val tester = playerScores.split(scoreSeperator)
-                                val newScore = tester.toMutableList()
-                                newScore.removeAt(scoreIndex)
-                                playerScores = newScore.joinToString(scoreSeperator)
-                                UpdateScore()
-                            }
-                        )
+                    itemsIndexed(playersScoresList) { scoreId,score ->
+
+                            ScoreLine(
+                                playerId = player.id,
+                                index = scoreId,
+                                score = score,
+                                checkScoreAdd = checkScoreAdd,
+                                onChangeScore = onChangeScore,
+                                onDeleteScore = { id, scoreIndex ->
+                                    onDeleteScore(id, scoreIndex)
+                                }
+                            )
+
                     }
                 }
             } else {
