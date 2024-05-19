@@ -1,11 +1,15 @@
 package com.samplural.fivecrownsscorekeeper.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -61,10 +65,9 @@ import com.samplural.fivecrownsscorekeeper.data.Scores
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
 import com.samplural.fivecrownsscorekeeper.ui.templates.CompactOutlinedTextField
-import kotlinx.coroutines.DelicateCoroutinesApi
 
 
-@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeApp(
     modifier: Modifier = Modifier,
@@ -219,7 +222,27 @@ fun HomeBody(
 
         }
     } else {
-        Text(text = "No Players")
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            val state = remember {
+                MutableTransitionState(false).apply {
+                    // Start the animation immediately.
+                    targetState = true
+                }
+            }
+            AnimatedVisibility(
+                visibleState = state,
+                enter = fadeIn(),
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Press '+' to add a player")
+                }
+            }
+        }
     }
 }
 
@@ -265,7 +288,7 @@ fun PlayerCard(
 
             var textName by rememberSaveable { mutableStateOf(player.name) }
 
-
+            // Player Name Box
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -283,16 +306,18 @@ fun PlayerCard(
                             style = MaterialTheme.typography.bodySmall,
                         )
                     },
-                    modifier = modifier,
+                    modifier = modifier.heightIn(min = 16.dp),
                     singleLine = true,
                     shape = MaterialTheme.shapes.large,
-                    contentPadding = contentPadding()
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                    contentPadding = contentPadding(
+                        start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp
+                    )
                 )
-
             }
 
 
-
+            // Total Score and Bin Icon
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -322,7 +347,9 @@ fun PlayerCard(
             // Score Card Layout
             if (validScoreCard) {
                 LazyColumn(
-                    modifier = modifier.fillMaxSize(),
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(vertical = 4.dp),
                 ) {
                     items(scores, key = { it.scoreId }) { item ->
 
@@ -388,11 +415,14 @@ fun PlayerCard(
                     label = { Text("") },
                     modifier = modifier
                         .widthIn(max = 72.dp)
+                        .heightIn(min = 40.dp)
                         .weight(10f),
                     singleLine = true,
                     shape = MaterialTheme.shapes.extraSmall,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = TextStyle(textAlign = TextAlign.Center),
+                    textStyle = TextStyle(
+                        textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface
+                    ),
                 )
                 IconButton(
                     onClick = {
@@ -415,7 +445,7 @@ fun PlayerCard(
                 if (checkScoreAdd(scoreAdd)) {
                     onAddScore(player.id, scoreAdd)
                 } else {
-                    scoreAdd = formatScoreAdd(scoreAdd)
+                    scoreAdd = "0"
                 }
             }) {
                 Icon(
@@ -468,21 +498,31 @@ fun ScoreLine(
         CompactOutlinedTextField(
             value = currentScore,
             onValueChange = {
+                val previous = it
                 if (checkScoreAdd(it)) {
-                    currentScore = it
+                    currentScore = formatScoreAdd(it)
                     onChangeScore(scoreIndex, it)
                 } else {
-                    currentScore = it
+                    val format = formatScoreAdd(it)
+                    if (format == "") {
+                        currentScore = previous
+                    } else {
+                        currentScore = format
+                    }
                 }
             },
             label = { Text("") },
             modifier = modifier
-                .heightIn(max = 40.dp)
+                .height(36.dp)
                 .weight(1f),
             singleLine = true,
             shape = MaterialTheme.shapes.extraSmall,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            textStyle = TextStyle(textAlign = TextAlign.Center),
+            textStyle = TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                color = MaterialTheme.colorScheme.onSurface
+            ),
         )
         IconButton(
             onClick = {
@@ -508,15 +548,13 @@ fun ScoreLine(
                 currentScore = score
             },
             modifier = modifier
-                .size(16.dp)
+                .size(18.dp)
                 .padding(start = 4.dp),
-
-            ) {
+        ) {
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Delete Score Button",
             )
         }
-
     }
 }

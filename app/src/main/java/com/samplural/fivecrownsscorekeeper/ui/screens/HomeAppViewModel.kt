@@ -91,6 +91,9 @@ class HomeAppViewModel(
 
     // Should return true if number input is valid
     fun checkScoreAdd(score: String): Boolean {
+        if (score == "") {
+            return false
+        }
         return score.toIntOrNull() != null
     }
 

@@ -49,6 +49,11 @@ fun CompactOutlinedTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
+    // If color is not provided via the text style, use content color as a default
+    val textColor = textStyle.color
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+
     BasicTextField(
         value = value,
         modifier = if (label != null) {
@@ -66,7 +71,7 @@ fun CompactOutlinedTextField(
         onValueChange = onValueChange,
         enabled = enabled,
         readOnly = readOnly,
-        textStyle = textStyle,
+        textStyle = mergedTextStyle,
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
@@ -90,7 +95,6 @@ fun CompactOutlinedTextField(
                 prefix = prefix,
                 suffix = suffix,
                 supportingText = supportingText,
-                colors = colors,
                 contentPadding = contentPadding,
                 container = {
                     OutlinedTextFieldDefaults.ContainerBox(
@@ -106,5 +110,6 @@ fun CompactOutlinedTextField(
         }
     )
 }
+
 
 
