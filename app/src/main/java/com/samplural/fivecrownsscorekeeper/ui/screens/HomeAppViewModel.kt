@@ -87,8 +87,6 @@ class HomeAppViewModel(
         }
     }
 
-
-
     // Should return true if number input is valid
     fun checkScoreAdd(score: String): Boolean {
         if (score == "") {
@@ -105,7 +103,7 @@ class HomeAppViewModel(
         if (match != null){
             return match.groupValues.takeLast(2).joinToString("")
         }
-        return ""
+        return "0"
     }
 }
 

@@ -470,6 +470,7 @@ fun ScoreLine(
 ) {
 
     var currentScore by remember { mutableStateOf(score) }
+    val previous = currentScore
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -497,15 +498,22 @@ fun ScoreLine(
         }
         CompactOutlinedTextField(
             value = currentScore,
+            placeholder = {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = modifier.fillMaxSize()
+                ) {
+                    Text(text = score)
+                }
+            },
             onValueChange = {
-                val previous = it
                 if (checkScoreAdd(it)) {
                     currentScore = formatScoreAdd(it)
                     onChangeScore(scoreIndex, it)
                 } else {
                     val format = formatScoreAdd(it)
                     if (format == "") {
-                        currentScore = previous
+                        currentScore = ""
                     } else {
                         currentScore = format
                     }
