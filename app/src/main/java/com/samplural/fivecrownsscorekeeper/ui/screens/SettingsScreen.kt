@@ -1,23 +1,30 @@
 package com.samplural.fivecrownsscorekeeper.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -32,7 +39,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-    val uiState = viewModel.uiState.collectAsState()
+
 
     Scaffold(
         topBar = {
@@ -57,43 +64,53 @@ fun SettingsScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
         ) {
 
-            Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                Column (
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ){
-
-                    val showDetails = uiState.value.showArrows
-                    if (!showDetails) {
-                        Text(
-                            text = "false",
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Button(onClick = { viewModel.switchShowArrows(showDetails) }) {
-                            Text("Click")
-                        }
-                    } else {
-                        Text(
-                            text = "true",
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Button(onClick = { viewModel.switchShowArrows(showDetails) }) {
-                            Text("Click")
-                        }
-                    }
-                }
-            }
-
+            Text("")
+            SettingsBoolItem(
+                title = "Show Details",
+                checked = true,
+                onCheckedChange = { }
+            )
         }
-
     }
 }
+
+@Composable
+fun SettingsBoolItem(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+
+    ) {
+        var check by remember { mutableStateOf(checked) }
+        Text(
+            text = title,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Switch(
+            checked = check,
+            onCheckedChange = {
+                check = it
+                onCheckedChange(it)
+            },
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
+    HorizontalDivider()
+
+}
+
 

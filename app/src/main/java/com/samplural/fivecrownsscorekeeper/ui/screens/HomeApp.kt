@@ -8,16 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -57,6 +55,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.samplural.fivecrownsscorekeeper.R
@@ -189,7 +188,8 @@ fun HomeBody(
             modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
         ) {
 
-            items(playersList, key = { it.id }) { player ->
+            items(count = playersList.size, key = { playersList[it].id }, itemContent = { index ->
+                val player = playersList[index]
                 Box(
                     contentAlignment = Alignment.TopEnd
                 ) {
@@ -218,10 +218,10 @@ fun HomeBody(
                         )
                     }
                 }
-            }
-
+            })
         }
     } else {
+        // No Players Added
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
@@ -263,10 +263,9 @@ fun PlayerCard(
 
     val justScores = scores.map { it.scores }
     val playerScores = justScores.joinToString(scoreSeperator)
-
     val validScoreCard = playerScores.isNotEmpty() || (playerScores == "0")
     val totalScore = if (validScoreCard) {
-        playerScores.split(scoreSeperator).sumOf { it.trimStart(' ').toInt() }
+        justScores.sumOf { it.toInt() }
     } else {
         0
     }
@@ -274,7 +273,7 @@ fun PlayerCard(
     Card(
         modifier = modifier
             .padding(horizontal = 4.dp)
-            .widthIn(min = 160.dp, max = 160.dp),
+            .width(160.dp),
     ) {
 
         // Player Details And Score Card
@@ -282,58 +281,48 @@ fun PlayerCard(
             modifier = modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
                 .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
         ) {
 
             var textName by rememberSaveable { mutableStateOf(player.name) }
 
             // Player Name Box
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.fillMaxWidth()
-            ) {
-                CompactOutlinedTextField(
-                    value = textName,
-                    onValueChange = {
-                        textName = it
-                        onNameChange(player.id, textName)
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Player Name",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    },
-                    modifier = modifier.heightIn(min = 16.dp),
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.large,
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
-                    contentPadding = contentPadding(
-                        start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp
+
+            CompactOutlinedTextField(
+                value = textName,
+                onValueChange = {
+                    textName = it
+                    onNameChange(player.id, textName)
+                },
+                placeholder = {
+                    Text(
+                        text = "Player Name",
+                        style = MaterialTheme.typography.bodySmall,
                     )
+                },
+                modifier = modifier.height(32.dp),
+                singleLine = true,
+                shape = MaterialTheme.shapes.large,
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                contentPadding = contentPadding(
+                    start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp
                 )
-            }
+            )
 
 
             // Total Score and Bin Icon
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                modifier = modifier.padding(vertical = 4.dp)
             ) {
                 Text(
-                    text = "Total: $totalScore", softWrap = true, modifier = modifier.weight(10f)
+                    text = "Total: $totalScore",
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = modifier.weight(1f)
                 )
                 IconButton(
-                    onClick = {
-                        onResetPlayerScore(player.id)
-                    }, modifier = modifier.size(36.dp)
-
-                ) {
+                    modifier = modifier.size(36.dp),
+                    onClick = { onResetPlayerScore(player.id) }) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.delete_sweep),
                         contentDescription = "Delete Score Button",
@@ -351,18 +340,29 @@ fun PlayerCard(
                         .fillMaxSize()
                         .padding(vertical = 4.dp),
                 ) {
-                    items(scores, key = { it.scoreId }) { item ->
+                    items(count = scores.size,
+                        key = { scores[it].scoreId },
+                        itemContent = { index ->
+                            val item = scores[index]
+                            Box {
+                                Text(
+                                    text = "${index + 1}:",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                                ScoreLine(
+                                    scoreIndex = item.scoreId,
+                                    score = item.scores,
+                                    checkScoreAdd = checkScoreAdd,
+                                    onChangeScore = onChangeScore,
+                                    onDeleteScore = onDeleteScore,
+                                    formatScoreAdd = formatScoreAdd,
+                                    showArrows = false,
+                                    showDelete = false
+                                )
+                            }
 
-                        ScoreLine(
-                            scoreIndex = item.scoreId,
-                            score = item.scores,
-                            checkScoreAdd = checkScoreAdd,
-                            onChangeScore = onChangeScore,
-                            onDeleteScore = onDeleteScore,
-                            formatScoreAdd = formatScoreAdd
-                        )
-
-                    }
+                        })
                 }
             } else {
                 Column(
@@ -383,14 +383,12 @@ fun PlayerCard(
         // Score Addition Buttons
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = modifier.padding(top = 16.dp)
+            modifier = modifier.padding(top = 8.dp)
         ) {
             var scoreAdd by rememberSaveable { mutableStateOf("0") }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
             ) {
                 IconButton(
                     onClick = {
@@ -414,8 +412,7 @@ fun PlayerCard(
                     },
                     label = { Text("") },
                     modifier = modifier
-                        .widthIn(max = 72.dp)
-                        .heightIn(min = 40.dp)
+                        .height(40.dp)
                         .weight(10f),
                     singleLine = true,
                     shape = MaterialTheme.shapes.extraSmall,
@@ -433,8 +430,7 @@ fun PlayerCard(
                         }
                     },
                     modifier = modifier.weight(9f),
-
-                    ) {
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = "Add Score Button",
@@ -466,11 +462,12 @@ fun ScoreLine(
     checkScoreAdd: (String) -> Boolean,
     onChangeScore: (Int, String) -> Unit,
     onDeleteScore: (Int) -> Unit,
-    formatScoreAdd: (String) -> String
+    formatScoreAdd: (String) -> String,
+    showArrows: Boolean,
+    showDelete: Boolean
 ) {
 
     var currentScore by remember { mutableStateOf(score) }
-    val previous = currentScore
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -500,10 +497,14 @@ fun ScoreLine(
             value = currentScore,
             placeholder = {
                 Box(
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.TopCenter, 
                     modifier = modifier.fillMaxSize()
                 ) {
-                    Text(text = score)
+                    Text(
+                        text = score,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        textAlign = TextAlign.Center
+                    )
                 }
             },
             onValueChange = {
@@ -522,7 +523,7 @@ fun ScoreLine(
             label = { Text("") },
             modifier = modifier
                 .height(36.dp)
-                .weight(1f),
+                .widthIn(min = 36.dp, max = 40.dp),
             singleLine = true,
             shape = MaterialTheme.shapes.extraSmall,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

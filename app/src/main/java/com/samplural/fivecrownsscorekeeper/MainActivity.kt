@@ -12,6 +12,7 @@ import com.example.compose.AppTheme
 import com.samplural.fivecrownsscorekeeper.ui.NavApp
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
