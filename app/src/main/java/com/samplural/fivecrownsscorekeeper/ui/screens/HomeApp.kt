@@ -381,76 +381,13 @@ fun PlayerCard(
 
 
         // Score Addition Buttons
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.padding(top = 8.dp)
-        ) {
-            var scoreAdd by rememberSaveable { mutableStateOf("0") }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(
-                    onClick = {
-                        if (checkScoreAdd(scoreAdd)) {
-                            scoreAdd = (scoreAdd.toInt() - 1).toString()
-                        } else {
-                            scoreAdd = "0"
-                        }
-                    },
-                    modifier = modifier.weight(9f),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Add Score Button",
-                    )
-                }
-                CompactOutlinedTextField(
-                    value = scoreAdd,
-                    onValueChange = {
-                        scoreAdd = formatScoreAdd(it)
-                    },
-                    label = { Text("") },
-                    modifier = modifier
-                        .height(40.dp)
-                        .weight(10f),
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.extraSmall,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = TextStyle(
-                        textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface
-                    ),
-                )
-                IconButton(
-                    onClick = {
-                        if (checkScoreAdd(scoreAdd)) {
-                            scoreAdd = (scoreAdd.toInt() + 1).toString()
-                        } else {
-                            scoreAdd = "0"
-                        }
-                    },
-                    modifier = modifier.weight(9f),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Add Score Button",
-                    )
-                }
-            }
-            IconButton(onClick = {
-                if (checkScoreAdd(scoreAdd)) {
-                    onAddScore(player.id, scoreAdd)
-                } else {
-                    scoreAdd = "0"
-                }
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.AddCircle,
-                    contentDescription = "Add Score to Row",
-                    modifier = modifier.size(32.dp)
-                )
-            }
-        }
+        ScoreAdditionBottom(
+            modifier = modifier,
+            checkScoreAdd = checkScoreAdd,
+            formatScoreAdd = formatScoreAdd,
+            onAddScore = onAddScore,
+            player = player
+        )
     }
 }
 
@@ -563,6 +500,86 @@ fun ScoreLine(
             Icon(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Delete Score Button",
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScoreAdditionBottom(
+    modifier: Modifier,
+    checkScoreAdd: (String) -> Boolean,
+    formatScoreAdd: (String) -> String,
+    onAddScore: (Int, String) -> Unit,
+    player: Players
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(top = 8.dp)
+    ) {
+        var scoreAdd by rememberSaveable { mutableStateOf("0") }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(
+                onClick = {
+                    if (checkScoreAdd(scoreAdd)) {
+                        scoreAdd = (scoreAdd.toInt() - 1).toString()
+                    } else {
+                        scoreAdd = "0"
+                    }
+                },
+                modifier = modifier.weight(9f),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "Add Score Button",
+                )
+            }
+            CompactOutlinedTextField(
+                value = scoreAdd,
+                onValueChange = {
+                    scoreAdd = formatScoreAdd(it)
+                },
+                label = { Text("") },
+                modifier = modifier
+                    .height(40.dp)
+                    .weight(10f),
+                singleLine = true,
+                shape = MaterialTheme.shapes.extraSmall,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface
+                ),
+            )
+            IconButton(
+                onClick = {
+                    if (checkScoreAdd(scoreAdd)) {
+                        scoreAdd = (scoreAdd.toInt() + 1).toString()
+                    } else {
+                        scoreAdd = "0"
+                    }
+                },
+                modifier = modifier.weight(9f),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Add Score Button",
+                )
+            }
+        }
+        IconButton(onClick = {
+            if (checkScoreAdd(scoreAdd)) {
+                onAddScore(player.id, scoreAdd)
+            } else {
+                scoreAdd = "0"
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Filled.AddCircle,
+                contentDescription = "Add Score to Row",
+                modifier = modifier.size(32.dp)
             )
         }
     }
