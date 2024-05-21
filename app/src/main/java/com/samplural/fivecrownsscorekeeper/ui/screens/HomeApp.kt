@@ -271,8 +271,8 @@ fun HomeBody(
             } else {
 
                 LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
-                    verticalItemSpacing = 4.dp,
+                    columns = StaggeredGridCells.Adaptive(160.dp),
+                    verticalItemSpacing = 16.dp,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     content = {
                         items(count = playersList.size,
