@@ -21,10 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,7 +37,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
 
-
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -68,12 +66,30 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
         ) {
-
-            Text("")
             SettingsBoolItem(
-                title = "Show Details",
-                checked = true,
-                onCheckedChange = { }
+                title = "Show Increment Arrows",
+                checked = uiState.showIncrementArrows,
+                onCheckedChange = { viewModel.updateBooleanWithKey("show_increment_arrows", it) }
+            )
+            SettingsBoolItem(
+                title = "Show Delete Row Icons",
+                checked = uiState.showDeleteRows,
+                onCheckedChange = { viewModel.updateBooleanWithKey("show_delete_rows", it) }
+            )
+            SettingsBoolItem(
+                title = "Show Round Labels",
+                checked = uiState.showRoundLabels,
+                onCheckedChange = { viewModel.updateBooleanWithKey("show_round_labels", it) }
+            )
+            SettingsBoolItem(
+                title = "Show Edit Score Boxes Always",
+                checked = uiState.showEditNumbers,
+                onCheckedChange = { viewModel.updateBooleanWithKey("show_edit_numbers", it) }
+            )
+            SettingsBoolItem(
+                title = "Show Score Row Dividers",
+                checked = uiState.showScoreDividers,
+                onCheckedChange = { viewModel.updateBooleanWithKey("show_score_dividers", it) }
             )
         }
     }
@@ -94,16 +110,14 @@ fun SettingsBoolItem(
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        var check by remember { mutableStateOf(checked) }
         Text(
             text = title,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.bodyLarge
         )
         Switch(
-            checked = check,
+            checked = checked,
             onCheckedChange = {
-                check = it
                 onCheckedChange(it)
             },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

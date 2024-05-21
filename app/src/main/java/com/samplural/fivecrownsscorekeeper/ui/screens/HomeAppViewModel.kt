@@ -6,6 +6,7 @@ import com.samplural.fivecrownsscorekeeper.data.Players
 import com.samplural.fivecrownsscorekeeper.data.PlayersRepository
 import com.samplural.fivecrownsscorekeeper.data.Scores
 import com.samplural.fivecrownsscorekeeper.data.SettingsRepository
+import com.samplural.fivecrownsscorekeeper.data.UserPreferences
 import com.samplural.fivecrownsscorekeeper.ui.screens.PlayerCardUiState.Companion.TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,22 @@ class HomeAppViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = ScoresUiState()
+        )
+
+    val settingsUiState: StateFlow<UserPreferences> =
+        settingsRepository.userPreferencesFlow.map {
+            UserPreferences(
+                showIncrementArrows = it.showIncrementArrows,
+                showDeleteRows = it.showDeleteRows,
+                showRoundLabels = it.showRoundLabels,
+                showScoreDividers = it.showScoreDividers,
+                showEditNumbers = it.showEditNumbers
+
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = UserPreferences()
         )
 
 
