@@ -353,7 +353,7 @@ fun PlayerCard(
         Column(
             modifier = modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .weight(1f)
+                .wrapContentHeight()
         ) {
             var textName by rememberSaveable { mutableStateOf(player.name) }
             Column(
@@ -446,7 +446,7 @@ fun PlayerCard(
             if (validScoreCard) {
                 LazyColumn(
                     modifier = modifier
-                        .fillMaxSize()
+                        .weight(1f)
                         .padding(vertical = 4.dp),
                 ) {
                     items(count = scores.size,
@@ -492,7 +492,7 @@ fun PlayerCard(
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = modifier.fillMaxSize()
+                    modifier = modifier.weight(1f)
                 ) {
                     Text(
                         text = "No Scores Added", textAlign = TextAlign.Center
@@ -501,18 +501,19 @@ fun PlayerCard(
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+
+            // Score Addition Buttons
+            ScoreAdditionBottom(
+                modifier = modifier.wrapContentHeight(),
+                checkScoreAdd = checkScoreAdd,
+                formatScoreAdd = formatScoreAdd,
+                onAddScore = onAddScore,
+                player = player,
+                showArrows = showAddArrows
+            )
         }
 
 
-        // Score Addition Buttons
-        ScoreAdditionBottom(
-            modifier = modifier.wrapContentHeight(),
-            checkScoreAdd = checkScoreAdd,
-            formatScoreAdd = formatScoreAdd,
-            onAddScore = onAddScore,
-            player = player,
-            showArrows = showAddArrows
-        )
     }
 }
 
