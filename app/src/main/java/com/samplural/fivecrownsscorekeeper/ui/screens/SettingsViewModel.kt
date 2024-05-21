@@ -24,6 +24,7 @@ class SettingsViewModel(
                 showEditNumbers = it.showEditNumbers,
                 showScoreDividers = it.showScoreDividers,
                 showAddArrows = it.showAddArrows,
+                showScoreRows = it.showScoreRows
             )
         }.stateIn(
             scope = viewModelScope,

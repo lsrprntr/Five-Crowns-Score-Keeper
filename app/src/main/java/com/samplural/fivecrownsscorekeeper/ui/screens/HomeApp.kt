@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -140,14 +142,12 @@ fun HomeApp(
                     DropdownMenuItem(onClick = {
                         dropDownMenuExpanded = false
                         onAboutClick()
-                    },
-                        text = { Text("About") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = "About Me Button",
-                            )
-                        })
+                    }, text = { Text("About") }, leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = "About Me Button",
+                        )
+                    })
                 }
 
             },
@@ -211,64 +211,128 @@ fun HomeBody(
             enter = fadeIn(),
         ) {
 
-            LazyRow(
-                modifier = modifier
-                    .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
-            ) {
+            val showScoreRows = settingsUiState.showScoreRows
+            if (showScoreRows) {
+                LazyRow(
+                    modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
+                ) {
 
-                items(
-                    count = playersList.size,
-                    key = { playersList[it].id },
-                    itemContent = { index ->
-                        val player = playersList[index]
-                        Box(
-                            contentAlignment = Alignment.TopEnd,
-                            modifier = modifier.animateItemPlacement()
-                        ) {
-                            val filteredScores = scoresList.filter { it.playerId == player.id }
-                            val cardState = remember {
-                                MutableTransitionState(false).apply {
-                                    // Start the animation immediately.
-                                    targetState = true
-                                }
-                            }
-                            AnimatedVisibility(
-                                visibleState = cardState, enter = fadeIn()
+                    items(count = playersList.size,
+                        key = { playersList[it].id },
+                        itemContent = { index ->
+                            val player = playersList[index]
+                            Box(
+                                modifier = modifier.animateItemPlacement()
                             ) {
-                                PlayerCard(
-                                    player = player,
-                                    scores = filteredScores,
-                                    settingsUiState = settingsUiState,
-                                    onNameChange = onNameChange,
-                                    onAddScore = onAddScore,
-                                    checkScoreAdd = checkScoreAdd,
-                                    onChangeScore = onChangeScore,
-                                    formatScoreAdd = formatScoreAdd,
-                                    onDeleteScore = onDeleteScore,
-                                    onResetPlayerScore = onResetPlayerScore,
-                                )
-
-                                // Delete Player Button
-                                IconButton(
-                                    onClick = {
-                                        onDeletePlayer(player.id)
-                                    },
-                                    modifier = modifier
-                                        .size(16.dp)
-                                        .offset(y = (-17).dp),
+                                val filteredScores = scoresList.filter { it.playerId == player.id }
+                                val cardState = remember {
+                                    MutableTransitionState(false).apply {
+                                        // Start the animation immediately.
+                                        targetState = true
+                                    }
+                                }
+                                AnimatedVisibility(
+                                    visibleState = cardState, enter = fadeIn()
                                 ) {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.outline,
+                                    PlayerCard(
+                                        player = player,
+                                        scores = filteredScores,
+                                        settingsUiState = settingsUiState,
+                                        onNameChange = onNameChange,
+                                        onAddScore = onAddScore,
+                                        checkScoreAdd = checkScoreAdd,
+                                        onChangeScore = onChangeScore,
+                                        formatScoreAdd = formatScoreAdd,
+                                        onDeleteScore = onDeleteScore,
+                                        onResetPlayerScore = onResetPlayerScore,
                                     )
+
+                                    // Delete Player Button
+                                    IconButton(
+                                        onClick = {
+                                            onDeletePlayer(player.id)
+                                        },
+                                        modifier = modifier
+                                            .size(16.dp)
+                                            .offset(y = (-17).dp),
+                                    ) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.outline,
+                                        )
+                                    }
+                                }
+
+                            }
+
+                        })
+                }
+            } else {
+
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(2),
+                    verticalItemSpacing = 4.dp,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    content = {
+                        items(count = playersList.size,
+                            key = { playersList[it].id },
+                            itemContent = { index ->
+                                val player = playersList[index]
+                                Box(
+                                    contentAlignment = Alignment.TopCenter,
+                                    modifier = modifier.animateItemPlacement()
+                                ) {
+                                    val filteredScores =
+                                        scoresList.filter { it.playerId == player.id }
+                                    val cardState = remember {
+                                        MutableTransitionState(false).apply {
+                                            // Start the animation immediately.
+                                            targetState = true
+                                        }
+                                    }
+                                    AnimatedVisibility(
+                                        visibleState = cardState, enter = fadeIn()
+                                    ) {
+                                        PlayerCard(
+                                            player = player,
+                                            scores = filteredScores,
+                                            settingsUiState = settingsUiState,
+                                            onNameChange = onNameChange,
+                                            onAddScore = onAddScore,
+                                            checkScoreAdd = checkScoreAdd,
+                                            onChangeScore = onChangeScore,
+                                            formatScoreAdd = formatScoreAdd,
+                                            onDeleteScore = onDeleteScore,
+                                            onResetPlayerScore = onResetPlayerScore,
+                                        )
+
+                                        // Delete Player Button
+                                        IconButton(
+                                            onClick = {
+                                                onDeletePlayer(player.id)
+                                            },
+                                            modifier = modifier
+                                                .size(16.dp)
+                                                .offset(y = (-17).dp),
+                                        ) {
+                                            Icon(
+                                                imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.outline,
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
-                        }
-
-                    })
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
+
+
         }
     } else {
         // No Players Added
@@ -347,6 +411,7 @@ fun PlayerCard(
         }
         val showScoreDividers = settingsUiState.showScoreDividers
         val showAddArrows = settingsUiState.showAddArrows
+        val showScoreRows = settingsUiState.showScoreRows
 
 
         // Player Details And Score Card
@@ -442,61 +507,63 @@ fun PlayerCard(
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
 
-            // Score Card Layout
-            if (validScoreCard) {
-                LazyColumn(
-                    modifier = modifier
-                        .weight(1f)
-                        .padding(vertical = 4.dp),
-                ) {
-                    items(count = scores.size,
-                        key = { scores[it].scoreId },
-                        itemContent = { index ->
-                            val item = scores[index]
-                            Box(
-                                contentAlignment = Alignment.BottomCenter,
-                                modifier = modifier.animateItemPlacement()
-                            ) {
+            if (showScoreRows) {
+                // Score Card Layout
+                if (validScoreCard) {
+                    LazyColumn(
+                        modifier = modifier
+                            .weight(1f)
+                            .padding(vertical = 4.dp),
+                    ) {
+                        items(count = scores.size,
+                            key = { scores[it].scoreId },
+                            itemContent = { index ->
+                                val item = scores[index]
                                 Box(
-                                    contentAlignment = Alignment.CenterStart,
+                                    contentAlignment = Alignment.BottomCenter,
+                                    modifier = modifier.animateItemPlacement()
                                 ) {
-                                    if (showRoundLabels) {
-                                        Text(
-                                            text = "${index + 1}:",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.outline
+                                    Box(
+                                        contentAlignment = Alignment.CenterStart,
+                                    ) {
+                                        if (showRoundLabels) {
+                                            Text(
+                                                text = "${index + 1}:",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.outline
+                                            )
+                                        }
+
+                                        ScoreLine(
+                                            scoreIndex = item.scoreId,
+                                            score = item.scores,
+                                            checkScoreAdd = checkScoreAdd,
+                                            onChangeScore = onChangeScore,
+                                            onDeleteScore = onDeleteScore,
+                                            formatScoreAdd = formatScoreAdd,
+                                            showIncrementArrows = showIncrementArrows,
+                                            showDeleteRows = showDeleteRows,
+                                            showEditNumbers = showEditNumbers
                                         )
                                     }
-
-                                    ScoreLine(
-                                        scoreIndex = item.scoreId,
-                                        score = item.scores,
-                                        checkScoreAdd = checkScoreAdd,
-                                        onChangeScore = onChangeScore,
-                                        onDeleteScore = onDeleteScore,
-                                        formatScoreAdd = formatScoreAdd,
-                                        showIncrementArrows = showIncrementArrows,
-                                        showDeleteRows = showDeleteRows,
-                                        showEditNumbers = showEditNumbers
-                                    )
+                                    if (showScoreDividers) {
+                                        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                                    }
                                 }
-                                if (showScoreDividers) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                                }
-                            }
 
-                        })
-                }
-            } else {
-                // No Scores Added
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "No Scores Added", textAlign = TextAlign.Center
-                    )
+                            })
+                    }
+                } else {
+                    // No Scores Added
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "No Scores Added", textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
 
@@ -696,8 +763,7 @@ private fun ScoreAdditionBottom(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = modifier
-                .fillMaxWidth()
+            modifier = modifier.fillMaxWidth()
         ) {
             if (showArrows) {
                 IconButton(

@@ -39,28 +39,22 @@ fun SettingsScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text("Settings")
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Scaffold(topBar = {
+        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ), title = {
+            Text("Settings")
+        }, navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        })
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -78,36 +72,29 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp)
             ) {
-                SettingsBoolItem(
-                    title = "Show Increment Arrows",
+                SettingsBoolItem(title = "Show Score Rows",
+                    checked = uiState.showScoreRows,
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_score_rows", it) })
+                SettingsBoolItem(title = "Show Increment Arrows",
                     checked = uiState.showIncrementArrows,
                     onCheckedChange = {
                         viewModel.updateBooleanWithKey(
                             "show_increment_arrows",
                             it
                         )
-                    }
-                )
-                SettingsBoolItem(
-                    title = "Show Delete Row Icons",
+                    })
+                SettingsBoolItem(title = "Show Delete Row Icons",
                     checked = uiState.showDeleteRows,
-                    onCheckedChange = { viewModel.updateBooleanWithKey("show_delete_rows", it) }
-                )
-                SettingsBoolItem(
-                    title = "Show Round Labels",
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_delete_rows", it) })
+                SettingsBoolItem(title = "Show Round Labels",
                     checked = uiState.showRoundLabels,
-                    onCheckedChange = { viewModel.updateBooleanWithKey("show_round_labels", it) }
-                )
-                SettingsBoolItem(
-                    title = "Show Edit Score Boxes Always",
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_round_labels", it) })
+                SettingsBoolItem(title = "Show Edit Score Boxes Always",
                     checked = uiState.showEditNumbers,
-                    onCheckedChange = { viewModel.updateBooleanWithKey("show_edit_numbers", it) }
-                )
-                SettingsBoolItem(
-                    title = "Show Score Row Dividers",
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_edit_numbers", it) })
+                SettingsBoolItem(title = "Show Score Row Dividers",
                     checked = uiState.showScoreDividers,
-                    onCheckedChange = { viewModel.updateBooleanWithKey("show_score_dividers", it) }
-                )
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_score_dividers", it) })
             }
 
             Text(
@@ -121,11 +108,9 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp)
             ) {
-                SettingsBoolItem(
-                    title = "Show Increment Arrows",
+                SettingsBoolItem(title = "Show Increment Arrows",
                     checked = uiState.showAddArrows,
-                    onCheckedChange = { viewModel.updateBooleanWithKey("show_add_arrows", it) }
-                )
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_add_arrows", it) })
             }
         }
     }
@@ -152,11 +137,9 @@ fun SettingsBoolItem(
             style = MaterialTheme.typography.bodyLarge
         )
         Switch(
-            checked = checked,
-            onCheckedChange = {
+            checked = checked, onCheckedChange = {
                 onCheckedChange(it)
-            },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            }, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
     HorizontalDivider()

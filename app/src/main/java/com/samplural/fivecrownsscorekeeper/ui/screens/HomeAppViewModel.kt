@@ -42,6 +42,7 @@ class HomeAppViewModel(
                 showScoreDividers = it.showScoreDividers,
                 showEditNumbers = it.showEditNumbers,
                 showAddArrows = it.showAddArrows,
+                showScoreRows = it.showScoreRows,
 
             )
         }.stateIn(
