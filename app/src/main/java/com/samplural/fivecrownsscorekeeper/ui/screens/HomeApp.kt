@@ -505,7 +505,7 @@ fun PlayerCard(
 
         // Score Addition Buttons
         ScoreAdditionBottom(
-            modifier = modifier,
+            modifier = modifier.wrapContentHeight(),
             checkScoreAdd = checkScoreAdd,
             formatScoreAdd = formatScoreAdd,
             onAddScore = onAddScore,
@@ -683,9 +683,11 @@ private fun ScoreAdditionBottom(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom,
         modifier = modifier
             .padding(top = 8.dp)
-            .height(80.dp)
+            .wrapContentHeight()
+
     ) {
         var scoreAdd by rememberSaveable { mutableStateOf("0") }
 
