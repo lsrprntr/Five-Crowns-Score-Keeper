@@ -40,7 +40,8 @@ class HomeAppViewModel(
                 showDeleteRows = it.showDeleteRows,
                 showRoundLabels = it.showRoundLabels,
                 showScoreDividers = it.showScoreDividers,
-                showEditNumbers = it.showEditNumbers
+                showEditNumbers = it.showEditNumbers,
+                showAddArrows = it.showAddArrows,
 
             )
         }.stateIn(

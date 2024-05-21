@@ -5,13 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.samplural.fivecrownsscorekeeper.ui.screens.AboutScreen
 import com.samplural.fivecrownsscorekeeper.ui.screens.HomeApp
 import com.samplural.fivecrownsscorekeeper.ui.screens.SettingsScreen
-
-enum class Screens {
-    HOME,
-    SETTINGS
-}
 @Composable
 fun NavApp(
     modifier: Modifier = Modifier
@@ -25,6 +21,7 @@ fun NavApp(
         composable("home") {
             HomeApp(
                 onSettingsClick = { navController.navigate("settings") },
+                onAboutClick = { navController.navigate("about") }
             )
         }
         composable("settings") {
@@ -32,7 +29,9 @@ fun NavApp(
                 onBackClick = { navController.popBackStack() }
             )
         }
-        // Add more destinations similarly.
+        composable("about") {
+            AboutScreen(onBackClick = { navController.popBackStack() })
+        }
     }
 
 }

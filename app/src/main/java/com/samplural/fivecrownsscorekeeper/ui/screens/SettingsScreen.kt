@@ -66,31 +66,67 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
         ) {
-            SettingsBoolItem(
-                title = "Show Increment Arrows",
-                checked = uiState.showIncrementArrows,
-                onCheckedChange = { viewModel.updateBooleanWithKey("show_increment_arrows", it) }
+            Text(
+                "Individual Score Row Layout",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                color = MaterialTheme.colorScheme.outline,
             )
-            SettingsBoolItem(
-                title = "Show Delete Row Icons",
-                checked = uiState.showDeleteRows,
-                onCheckedChange = { viewModel.updateBooleanWithKey("show_delete_rows", it) }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                SettingsBoolItem(
+                    title = "Show Increment Arrows",
+                    checked = uiState.showIncrementArrows,
+                    onCheckedChange = {
+                        viewModel.updateBooleanWithKey(
+                            "show_increment_arrows",
+                            it
+                        )
+                    }
+                )
+                SettingsBoolItem(
+                    title = "Show Delete Row Icons",
+                    checked = uiState.showDeleteRows,
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_delete_rows", it) }
+                )
+                SettingsBoolItem(
+                    title = "Show Round Labels",
+                    checked = uiState.showRoundLabels,
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_round_labels", it) }
+                )
+                SettingsBoolItem(
+                    title = "Show Edit Score Boxes Always",
+                    checked = uiState.showEditNumbers,
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_edit_numbers", it) }
+                )
+                SettingsBoolItem(
+                    title = "Show Score Row Dividers",
+                    checked = uiState.showScoreDividers,
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_score_dividers", it) }
+                )
+            }
+
+            Text(
+                "Bottom Score Adder Layout",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+                color = MaterialTheme.colorScheme.outline,
             )
-            SettingsBoolItem(
-                title = "Show Round Labels",
-                checked = uiState.showRoundLabels,
-                onCheckedChange = { viewModel.updateBooleanWithKey("show_round_labels", it) }
-            )
-            SettingsBoolItem(
-                title = "Show Edit Score Boxes Always",
-                checked = uiState.showEditNumbers,
-                onCheckedChange = { viewModel.updateBooleanWithKey("show_edit_numbers", it) }
-            )
-            SettingsBoolItem(
-                title = "Show Score Row Dividers",
-                checked = uiState.showScoreDividers,
-                onCheckedChange = { viewModel.updateBooleanWithKey("show_score_dividers", it) }
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                SettingsBoolItem(
+                    title = "Show Increment Arrows",
+                    checked = uiState.showAddArrows,
+                    onCheckedChange = { viewModel.updateBooleanWithKey("show_add_arrows", it) }
+                )
+            }
         }
     }
 }

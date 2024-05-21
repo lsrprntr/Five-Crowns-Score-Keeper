@@ -22,7 +22,8 @@ class SettingsViewModel(
                 showRoundLabels = it.showRoundLabels,
                 showExpandedScores = it.showExpandedScores,
                 showEditNumbers = it.showEditNumbers,
-                showScoreDividers = it.showScoreDividers
+                showScoreDividers = it.showScoreDividers,
+                showAddArrows = it.showAddArrows,
             )
         }.stateIn(
             scope = viewModelScope,

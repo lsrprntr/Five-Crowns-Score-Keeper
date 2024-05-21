@@ -3,7 +3,9 @@ package com.samplural.fivecrownsscorekeeper.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +17,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardOptions
@@ -76,7 +77,8 @@ import com.samplural.fivecrownsscorekeeper.ui.templates.CompactOutlinedTextField
 fun HomeApp(
     modifier: Modifier = Modifier,
     viewModel: HomeAppViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onAboutClick: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scoreUiState by viewModel.scoreUiState.collectAsState()
@@ -134,7 +136,10 @@ fun HomeApp(
                             contentDescription = "Settings Button",
                         )
                     })
-                    DropdownMenuItem(onClick = { /* TODO:AddAboutMe */ },
+                    DropdownMenuItem(onClick = {
+                        dropDownMenuExpanded = false
+                        onAboutClick()
+                    },
                         text = { Text("About") },
                         leadingIcon = {
                             Icon(
@@ -176,6 +181,7 @@ fun HomeApp(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeBody(
     playersList: List<Players>,
@@ -203,10 +209,10 @@ fun HomeBody(
             visibleState = state,
             enter = fadeIn(),
         ) {
+
             LazyRow(
                 modifier = modifier
                     .padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
-                    .animateContentSize(),
             ) {
 
                 items(
@@ -214,40 +220,50 @@ fun HomeBody(
                     key = { playersList[it].id },
                     itemContent = { index ->
                         val player = playersList[index]
-
                         Box(
-                            contentAlignment = Alignment.TopEnd
+                            contentAlignment = Alignment.TopEnd,
+                            modifier = modifier.animateItemPlacement()
                         ) {
                             val filteredScores = scoresList.filter { it.playerId == player.id }
-
-                            PlayerCard(
-                                player = player,
-                                scores = filteredScores,
-                                settingsUiState = settingsUiState,
-                                onNameChange = onNameChange,
-                                onAddScore = onAddScore,
-                                checkScoreAdd = checkScoreAdd,
-                                onChangeScore = onChangeScore,
-                                formatScoreAdd = formatScoreAdd,
-                                onDeleteScore = onDeleteScore,
-                                onResetPlayerScore = onResetPlayerScore,
-                            )
-
-                            // Delete Player Button
-                            IconButton(
-                                onClick = {
-                                    onDeletePlayer(player.id)
-                                },
-                                modifier = modifier
-                                    .size(16.dp)
-                                    .offset(y = (-17).dp),
-                            ) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.outline,
-                                )
+                            val cardState = remember {
+                                MutableTransitionState(false).apply {
+                                    // Start the animation immediately.
+                                    targetState = true
+                                }
                             }
+                            AnimatedVisibility(
+                                visibleState = cardState, enter = fadeIn()
+                            ) {
+                                PlayerCard(
+                                    player = player,
+                                    scores = filteredScores,
+                                    settingsUiState = settingsUiState,
+                                    onNameChange = onNameChange,
+                                    onAddScore = onAddScore,
+                                    checkScoreAdd = checkScoreAdd,
+                                    onChangeScore = onChangeScore,
+                                    formatScoreAdd = formatScoreAdd,
+                                    onDeleteScore = onDeleteScore,
+                                    onResetPlayerScore = onResetPlayerScore,
+                                )
+
+                                // Delete Player Button
+                                IconButton(
+                                    onClick = {
+                                        onDeletePlayer(player.id)
+                                    },
+                                    modifier = modifier
+                                        .size(16.dp)
+                                        .offset(y = (-17).dp),
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.outline,
+                                    )
+                                }
+                            }
+
                         }
 
                     })
@@ -267,7 +283,7 @@ fun HomeBody(
             }
             AnimatedVisibility(
                 visibleState = state,
-                enter = fadeIn(),
+                enter = fadeIn(spring(stiffness = 12f)),
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -280,6 +296,7 @@ fun HomeBody(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerCard(
     modifier: Modifier = Modifier,
@@ -328,6 +345,7 @@ fun PlayerCard(
             settingsUiState.showEditNumbers
         }
         val showScoreDividers = settingsUiState.showScoreDividers
+        val showAddArrows = settingsUiState.showAddArrows
 
 
         // Player Details And Score Card
@@ -371,29 +389,31 @@ fun PlayerCard(
                     Text(
                         text = "Total: $totalScore",
                         softWrap = true,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = modifier.weight(1f)
+                        modifier = modifier
+                            .padding(vertical = 4.dp)
+                            .weight(1f)
                     )
                     if (showEditOptions) {
-                        Column {
-                            IconButton(
-                                onClick = { showEditOptions = false },
-                                modifier = modifier.size(36.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    contentDescription = "Edit Player Button",
-                                )
-                            }
+                        IconButton(
+                            onClick = { showEditOptions = false }, modifier = modifier.size(30.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Edit Player Button",
+                            )
                         }
+
                     } else {
                         // Edit Key
                         IconButton(
-                            onClick = { showEditOptions = true }, modifier = modifier.size(36.dp)
+                            onClick = { showEditOptions = true }, modifier = modifier.size(30.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Edit,
                                 contentDescription = "Edit Player Button",
+                                modifier = modifier.size(18.dp)
                             )
                         }
                     }
@@ -422,8 +442,6 @@ fun PlayerCard(
 
 
             // Score Card Layout
-
-
             if (validScoreCard) {
                 LazyColumn(
                     modifier = modifier
@@ -435,31 +453,37 @@ fun PlayerCard(
                         itemContent = { index ->
                             val item = scores[index]
                             Box(
-                                contentAlignment = Alignment.CenterStart
+                                contentAlignment = Alignment.BottomCenter,
+                                modifier = modifier.animateItemPlacement()
                             ) {
-                                if (showRoundLabels) {
-                                    Text(
-                                        text = "${index + 1}:",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.outline
+                                Box(
+                                    contentAlignment = Alignment.CenterStart,
+                                ) {
+                                    if (showRoundLabels) {
+                                        Text(
+                                            text = "${index + 1}:",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.outline
+                                        )
+                                    }
+
+                                    ScoreLine(
+                                        scoreIndex = item.scoreId,
+                                        score = item.scores,
+                                        checkScoreAdd = checkScoreAdd,
+                                        onChangeScore = onChangeScore,
+                                        onDeleteScore = onDeleteScore,
+                                        formatScoreAdd = formatScoreAdd,
+                                        showIncrementArrows = showIncrementArrows,
+                                        showDeleteRows = showDeleteRows,
+                                        showEditNumbers = showEditNumbers
                                     )
                                 }
+                                if (showScoreDividers) {
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                                }
+                            }
 
-                                ScoreLine(
-                                    scoreIndex = item.scoreId,
-                                    score = item.scores,
-                                    checkScoreAdd = checkScoreAdd,
-                                    onChangeScore = onChangeScore,
-                                    onDeleteScore = onDeleteScore,
-                                    formatScoreAdd = formatScoreAdd,
-                                    showIncrementArrows = showIncrementArrows,
-                                    showDeleteRows = showDeleteRows,
-                                    showEditNumbers = showEditNumbers
-                                )
-                            }
-                            if (showScoreDividers) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                            }
                         })
                 }
             } else {
@@ -485,7 +509,8 @@ fun PlayerCard(
             checkScoreAdd = checkScoreAdd,
             formatScoreAdd = formatScoreAdd,
             onAddScore = onAddScore,
-            player = player
+            player = player,
+            showArrows = showAddArrows
         )
     }
 }
@@ -505,66 +530,71 @@ fun ScoreLine(
 ) {
 
     var currentScore by remember { mutableStateOf(score) }
-    var visible by remember { mutableStateOf(true) }
+    val visible by remember { mutableStateOf(true) }
 
     AnimatedVisibility(visible) {
 
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier
-            .fillMaxSize()
-            .padding(vertical = 1.dp)
-    ) {
-        AnimatedVisibility(
-            visible = showIncrementArrows,
-            enter = fadeIn(),
-        ) {
-            IconButton(
-                onClick = {
-                    if (checkScoreAdd(currentScore)) {
-                        currentScore = (currentScore.toInt() - 1).toString()
-                        onChangeScore(scoreIndex, currentScore)
-                    } else {
-                        currentScore = "0"
-                        onChangeScore(scoreIndex, currentScore)
-                    }
-
-                }, modifier = modifier.size(32.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Add Score Button",
-                )
-            }
+    val state = remember {
+        MutableTransitionState(false).apply {
+            // Start the animation immediately.
+            targetState = true
         }
-
-        if (!showEditNumbers) {
-            Text(
-                text = currentScore,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = modifier.padding(4.dp)
-            )
-        } else {
-            val state = remember {
-                MutableTransitionState(false).apply {
-                    // Start the animation immediately.
-                    targetState = true
-                }
-            }
+    }
+    AnimatedVisibility(
+        visibleState = state,
+        enter = fadeIn(),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .padding(vertical = 4.dp)
+        ) {
             AnimatedVisibility(
-                visibleState = state,
+                visible = showIncrementArrows,
                 enter = fadeIn(),
             ) {
+                IconButton(
+                    onClick = {
+                        if (checkScoreAdd(currentScore)) {
+                            currentScore = (currentScore.toInt() - 1).toString()
+                            onChangeScore(scoreIndex, currentScore)
+                        } else {
+                            currentScore = "0"
+                            onChangeScore(scoreIndex, currentScore)
+                        }
+
+                    }, modifier = modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Add Score Button",
+                    )
+                }
+            }
+
+            if (!showEditNumbers) {
+                Text(
+                    text = currentScore,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = modifier
+                        .padding(4.dp)
+                        .width(36.dp)
+                )
+            } else {
+
                 CompactOutlinedTextField(
                     value = currentScore,
                     placeholder = {
                         Box(
-                            contentAlignment = Alignment.TopCenter,
-                            modifier = modifier.fillMaxSize()
+                            contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()
                         ) {
                             Text(
                                 text = score,
@@ -588,7 +618,7 @@ fun ScoreLine(
                     },
                     modifier = modifier
                         .height(36.dp)
-                        .widthIn(min = 36.dp, max = 40.dp),
+                        .width(36.dp),
                     singleLine = true,
                     shape = MaterialTheme.shapes.extraSmall,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -598,45 +628,46 @@ fun ScoreLine(
                         color = MaterialTheme.colorScheme.onSurface
                     ),
                 )
-            }
-        }
-        AnimatedVisibility(showIncrementArrows) {
-            IconButton(
-                onClick = {
-                    if (checkScoreAdd(currentScore)) {
-                        currentScore = (currentScore.toInt() + 1).toString()
-                        onChangeScore(scoreIndex, currentScore)
-                    } else {
-                        currentScore = "0"
-                        onChangeScore(scoreIndex, currentScore)
-                    }
-                },
-                modifier = modifier.size(32.dp),
 
+            }
+            AnimatedVisibility(showIncrementArrows) {
+                IconButton(
+                    onClick = {
+                        if (checkScoreAdd(currentScore)) {
+                            currentScore = (currentScore.toInt() + 1).toString()
+                            onChangeScore(scoreIndex, currentScore)
+                        } else {
+                            currentScore = "0"
+                            onChangeScore(scoreIndex, currentScore)
+                        }
+                    },
+                    modifier = modifier.size(32.dp),
+
+                    ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Add Score Button",
+                    )
+                }
+            }
+            AnimatedVisibility(showDeleteRows) {
+                IconButton(
+                    onClick = {
+                        onDeleteScore(scoreIndex)
+                        currentScore = score
+                    },
+                    modifier = modifier
+                        .size(18.dp)
+                        .padding(start = 4.dp),
                 ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Add Score Button",
-                )
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Delete Score Button",
+                    )
+                }
             }
-        }
-        AnimatedVisibility(showDeleteRows) {
-            IconButton(
-                onClick = {
-                    onDeleteScore(scoreIndex)
-                    currentScore = score
-                },
-                modifier = modifier
-                    .size(18.dp)
-                    .padding(start = 4.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete Score Button",
-                )
-            }
-        }
 
+        }
     }
 
 }
@@ -647,30 +678,39 @@ private fun ScoreAdditionBottom(
     checkScoreAdd: (String) -> Boolean,
     formatScoreAdd: (String) -> String,
     onAddScore: (Int, String) -> Unit,
-    player: Players
+    player: Players,
+    showArrows: Boolean
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.padding(top = 8.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .padding(top = 8.dp)
+            .height(80.dp)
     ) {
         var scoreAdd by rememberSaveable { mutableStateOf("0") }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = modifier
+                .fillMaxWidth()
         ) {
-            IconButton(
-                onClick = {
-                    if (checkScoreAdd(scoreAdd)) {
-                        scoreAdd = (scoreAdd.toInt() - 1).toString()
-                    } else {
-                        scoreAdd = "0"
-                    }
-                },
-                modifier = modifier.weight(9f),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Add Score Button",
-                )
+            if (showArrows) {
+                IconButton(
+                    onClick = {
+                        if (checkScoreAdd(scoreAdd)) {
+                            scoreAdd = (scoreAdd.toInt() - 1).toString()
+                        } else {
+                            scoreAdd = "0"
+                        }
+                    },
+                    modifier = modifier.weight(9f),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Add Score Button",
+                    )
+                }
             }
             CompactOutlinedTextField(
                 value = scoreAdd,
@@ -680,7 +720,7 @@ private fun ScoreAdditionBottom(
                 label = { Text("") },
                 modifier = modifier
                     .height(40.dp)
-                    .weight(10f),
+                    .width(60.dp),
                 singleLine = true,
                 shape = MaterialTheme.shapes.extraSmall,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -688,20 +728,22 @@ private fun ScoreAdditionBottom(
                     textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface
                 ),
             )
-            IconButton(
-                onClick = {
-                    if (checkScoreAdd(scoreAdd)) {
-                        scoreAdd = (scoreAdd.toInt() + 1).toString()
-                    } else {
-                        scoreAdd = "0"
-                    }
-                },
-                modifier = modifier.weight(9f),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Add Score Button",
-                )
+            if (showArrows) {
+                IconButton(
+                    onClick = {
+                        if (checkScoreAdd(scoreAdd)) {
+                            scoreAdd = (scoreAdd.toInt() + 1).toString()
+                        } else {
+                            scoreAdd = "0"
+                        }
+                    },
+                    modifier = modifier.weight(9f),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Add Score Button",
+                    )
+                }
             }
         }
         IconButton(onClick = {

@@ -20,6 +20,7 @@ data class UserPreferences(
     val showExpandedScores: Boolean = true,
     val showEditNumbers: Boolean = false,
     val showScoreDividers: Boolean = true,
+    val showAddArrows: Boolean = true,
 
     ) {
 }
@@ -34,6 +35,8 @@ class SettingsRepository(
         val SHOW_EXPANDED_SCORES = booleanPreferencesKey("show_expanded_scores")
         val SHOW_EDIT_NUMBERS = booleanPreferencesKey("show_edit_numbers")
         val SHOW_SCORE_DIVIDERS = booleanPreferencesKey("show_score_dividers")
+        val SHOW_ADD_ARROWS = booleanPreferencesKey("show_add_arrows")
+
 
     }
 
@@ -44,6 +47,7 @@ class SettingsRepository(
         val showExpandedScores = preferences[PreferencesKeys.SHOW_EXPANDED_SCORES] ?: true
         val showEditNumbers = preferences[PreferencesKeys.SHOW_EDIT_NUMBERS] ?: false
         val showScoreDividers = preferences[PreferencesKeys.SHOW_SCORE_DIVIDERS] ?: true
+        val showAddArrows = preferences[PreferencesKeys.SHOW_ADD_ARROWS] ?: true
 
         // Return for map
         UserPreferences(
@@ -52,7 +56,8 @@ class SettingsRepository(
             showRoundLabels,
             showExpandedScores,
             showEditNumbers,
-            showScoreDividers
+            showScoreDividers,
+            showAddArrows,
         )
     }
 
