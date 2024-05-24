@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class HomeAppViewModel(
     private val playersRepository: PlayersRepository,
-    settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<PlayerCardUiState> =
@@ -43,6 +43,8 @@ class HomeAppViewModel(
                 showEditNumbers = it.showEditNumbers,
                 showAddArrows = it.showAddArrows,
                 showScoreRows = it.showScoreRows,
+                showGridView = it.showGridView,
+                startNumber = it.startNumber
 
             )
         }.stateIn(
@@ -50,6 +52,12 @@ class HomeAppViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = UserPreferences()
         )
+
+    fun updateBooleanWithKey(key: String, bool: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.updateBooleanWithKey(key, bool)
+        }
+    }
 
 
     fun addNewPlayer() {
@@ -123,7 +131,14 @@ class HomeAppViewModel(
         val regex = Regex("(-?)0*(\\d*\$)")
         val match = regex.find(score)
         if (match != null){
-            return match.groupValues.takeLast(2).joinToString("")
+            val matchResult = match.groupValues.takeLast(2).joinToString("")
+            if (score.length <= 1) {
+                return score
+            }
+            if (score == "00") {
+                return "0"
+            }
+            return matchResult
         }
         return "0"
     }

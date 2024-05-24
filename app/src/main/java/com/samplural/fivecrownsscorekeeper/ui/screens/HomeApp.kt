@@ -13,11 +13,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -28,9 +28,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Delete
@@ -58,6 +56,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -65,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.samplural.fivecrownsscorekeeper.R
 import com.samplural.fivecrownsscorekeeper.data.Players
@@ -85,84 +85,97 @@ fun HomeApp(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scoreUiState by viewModel.scoreUiState.collectAsState()
-    val settingsUiState = viewModel.settingsUiState.collectAsState().value
+    val settingsUiState = viewModel.settingsUiState.collectAsState()
 
     var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = {
-        TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-            ),
-            title = {
-                Text("Score Keeper")
-            },
-            actions = {
-                IconButton(onClick = { viewModel.addNewPlayer() }) {
-                    Icon(
-                        imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
-                    )
-                }
-                IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = "More Options",
-                    )
-                }
-                DropdownMenu(expanded = dropDownMenuExpanded,
-                    onDismissRequest = { dropDownMenuExpanded = false }) {
-                    DropdownMenuItem(onClick = {
-                        viewModel.resetAllPlayerScores()
-                        dropDownMenuExpanded = false
-                    }, text = { Text("Reset All Scores") }, leadingIcon = {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text("Score Keeper")
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.addNewPlayer() }) {
                         Icon(
-                            imageVector = Icons.Filled.Refresh,
-                            contentDescription = "Reset All Scores Button",
+                            imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
                         )
-                    })
-                    DropdownMenuItem(onClick = {
-                        viewModel.deleteAllPlayers()
-                        dropDownMenuExpanded = false
-                    }, text = { Text("Delete All Players") }, leadingIcon = {
+                    }
+                    IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
                         Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Delete All Players Button",
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "More Options",
                         )
-                    })
-                    DropdownMenuItem(onClick = {
-                        onSettingsClick()
-                        dropDownMenuExpanded = false
-                    }, text = { Text("Settings") }, leadingIcon = {
+                    }
+                    IconButton(onClick = {
+                        viewModel.updateBooleanWithKey(
+                            "show_grid_view",
+                            !settingsUiState.value.showGridView
+                        )
+                    }) {
                         Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = "Settings Button",
+                            imageVector = ImageVector.vectorResource(id = if (settingsUiState.value.showGridView) R.drawable.column_view else R.drawable.grid_view),
+                            contentDescription = "Switch View Layout Button"
                         )
-                    })
-                    DropdownMenuItem(onClick = {
-                        dropDownMenuExpanded = false
-                        onAboutClick()
-                    }, text = { Text("About") }, leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Info,
-                            contentDescription = "About Me Button",
-                        )
-                    })
-                }
+                    }
+                    DropdownMenu(expanded = dropDownMenuExpanded,
+                        onDismissRequest = { dropDownMenuExpanded = false }) {
+                        DropdownMenuItem(onClick = {
+                            viewModel.resetAllPlayerScores()
+                            dropDownMenuExpanded = false
+                        }, text = { Text("Reset All Scores") }, leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Reset All Scores Button",
+                            )
+                        })
+                        DropdownMenuItem(onClick = {
+                            viewModel.deleteAllPlayers()
+                            dropDownMenuExpanded = false
+                        }, text = { Text("Delete All Players") }, leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Delete All Players Button",
+                            )
+                        })
+                        DropdownMenuItem(onClick = {
+                            onSettingsClick()
+                            dropDownMenuExpanded = false
+                        }, text = { Text("Settings") }, leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Settings,
+                                contentDescription = "Settings Button",
+                            )
+                        })
+                        DropdownMenuItem(onClick = {
+                            dropDownMenuExpanded = false
+                            onAboutClick()
+                        }, text = { Text("About") }, leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = "About Me Button",
+                            )
+                        })
+                    }
 
-            },
-        )
-    }) { paddingValues ->
+                },
+            )
+        },
+        bottomBar = { HorizontalDivider() }
+    ) { paddingValues ->
         Column(
             modifier = modifier
                 .padding(paddingValues)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             HomeBody(
                 playersList = uiState.player,
                 scoresList = scoreUiState.scores,
-                settingsUiState = settingsUiState,
-                modifier = modifier.padding(top = 16.dp),
+                settingsUiState = settingsUiState.value,
                 onNameChange = { id, name ->
                     viewModel.updatePlayerName(id, name)
                 },
@@ -209,79 +222,25 @@ fun HomeBody(
         AnimatedVisibility(
             visibleState = state,
             enter = fadeIn(),
+            modifier = modifier.padding(vertical = 16.dp)
         ) {
 
-            val showScoreRows = settingsUiState.showScoreRows
-            if (showScoreRows) {
-                LazyRow(
-                    modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
-                ) {
-
-                    items(count = playersList.size,
-                        key = { playersList[it].id },
-                        itemContent = { index ->
-                            val player = playersList[index]
-                            Box(
-                                modifier = modifier.animateItemPlacement()
-                            ) {
-                                val filteredScores = scoresList.filter { it.playerId == player.id }
-                                val cardState = remember {
-                                    MutableTransitionState(false).apply {
-                                        // Start the animation immediately.
-                                        targetState = true
-                                    }
-                                }
-                                AnimatedVisibility(
-                                    visibleState = cardState, enter = fadeIn()
-                                ) {
-                                    PlayerCard(
-                                        player = player,
-                                        scores = filteredScores,
-                                        settingsUiState = settingsUiState,
-                                        onNameChange = onNameChange,
-                                        onAddScore = onAddScore,
-                                        checkScoreAdd = checkScoreAdd,
-                                        onChangeScore = onChangeScore,
-                                        formatScoreAdd = formatScoreAdd,
-                                        onDeleteScore = onDeleteScore,
-                                        onResetPlayerScore = onResetPlayerScore,
-                                    )
-
-                                    // Delete Player Button
-                                    IconButton(
-                                        onClick = {
-                                            onDeletePlayer(player.id)
-                                        },
-                                        modifier = modifier
-                                            .size(16.dp)
-                                            .offset(y = (-17).dp),
-                                    ) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.outline,
-                                        )
-                                    }
-                                }
-
-                            }
-
-                        })
-                }
-            } else {
-
+            val showGridView = settingsUiState.showGridView
+            if (showGridView) {
                 LazyVerticalStaggeredGrid(
+                    modifier = modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(160.dp),
-                    verticalItemSpacing = 16.dp,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                     content = {
                         items(count = playersList.size,
                             key = { playersList[it].id },
                             itemContent = { index ->
                                 val player = playersList[index]
                                 Box(
-                                    contentAlignment = Alignment.TopCenter,
-                                    modifier = modifier.animateItemPlacement()
+                                    modifier = Modifier
+                                        .animateItemPlacement()
+                                        .wrapContentWidth(),
+                                    contentAlignment = Alignment.TopCenter
                                 ) {
                                     val filteredScores =
                                         scoresList.filter { it.playerId == player.id }
@@ -292,12 +251,13 @@ fun HomeBody(
                                         }
                                     }
                                     AnimatedVisibility(
-                                        visibleState = cardState, enter = fadeIn()
+                                        visibleState = cardState, enter = fadeIn(),
                                     ) {
                                         PlayerCard(
                                             player = player,
                                             scores = filteredScores,
                                             settingsUiState = settingsUiState,
+                                            onDeletePlayer = onDeletePlayer,
                                             onNameChange = onNameChange,
                                             onAddScore = onAddScore,
                                             checkScoreAdd = checkScoreAdd,
@@ -307,29 +267,56 @@ fun HomeBody(
                                             onResetPlayerScore = onResetPlayerScore,
                                         )
 
-                                        // Delete Player Button
-                                        IconButton(
-                                            onClick = {
-                                                onDeletePlayer(player.id)
-                                            },
-                                            modifier = modifier
-                                                .size(16.dp)
-                                                .offset(y = (-17).dp),
-                                        ) {
-                                            Icon(
-                                                imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.outline,
-                                            )
-                                        }
+
                                     }
                                 }
                             }
 
                         )
                     },
-                    modifier = Modifier.fillMaxSize()
                 )
+            } else {
+                LazyRow(
+                    modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
+                ) {
+
+                    items(count = playersList.size,
+                        key = { playersList[it].id },
+                        itemContent = { index ->
+                            val player = playersList[index]
+                            Box(
+                                modifier = modifier.animateItemPlacement(),
+                            ) {
+                                val filteredScores = scoresList.filter { it.playerId == player.id }
+                                val cardState = remember {
+                                    MutableTransitionState(false).apply {
+                                        // Start the animation immediately.
+                                        targetState = true
+                                    }
+                                }
+                                AnimatedVisibility(
+                                    visibleState = cardState, enter = fadeIn(),
+                                ) {
+                                    PlayerCard(
+                                        player = player,
+                                        scores = filteredScores,
+                                        settingsUiState = settingsUiState,
+                                        onDeletePlayer = onDeletePlayer,
+                                        onNameChange = onNameChange,
+                                        onAddScore = onAddScore,
+                                        checkScoreAdd = checkScoreAdd,
+                                        onChangeScore = onChangeScore,
+                                        formatScoreAdd = formatScoreAdd,
+                                        onDeleteScore = onDeleteScore,
+                                        onResetPlayerScore = onResetPlayerScore,
+                                    )
+
+                                }
+
+                            }
+
+                        })
+                }
             }
 
 
@@ -366,6 +353,7 @@ fun HomeBody(
 fun PlayerCard(
     modifier: Modifier = Modifier,
     player: Players,
+    onDeletePlayer: (Int) -> Unit,
     onNameChange: (Int, String) -> Unit,
     onAddScore: (Int, String) -> Unit,
     checkScoreAdd: (String) -> Boolean,
@@ -376,6 +364,7 @@ fun PlayerCard(
     scores: List<Scores>,
     settingsUiState: UserPreferences,
 ) {
+    var showEditOptions: Boolean by remember { mutableStateOf(false) }
 
     val justScores = scores.map { it.scores }
     val playerScores = justScores.joinToString(scoreSeperator)
@@ -386,201 +375,237 @@ fun PlayerCard(
         0
     }
 
-    Card(
-        modifier = modifier
-            .padding(horizontal = 4.dp)
-            .width(160.dp)
+    Box(
+        contentAlignment = Alignment.TopEnd,
     ) {
 
-        var showEditOptions: Boolean by remember { mutableStateOf(false) }
-        val showIncrementArrows = if (showEditOptions) {
-            true
-        } else {
-            settingsUiState.showIncrementArrows
-        }
-        val showDeleteRows = if (showEditOptions) {
-            true
-        } else {
-            settingsUiState.showDeleteRows
-        }
-        val showRoundLabels = settingsUiState.showRoundLabels
-        val showEditNumbers = if (showEditOptions) {
-            true
-        } else {
-            settingsUiState.showEditNumbers
-        }
-        val showScoreDividers = settingsUiState.showScoreDividers
-        val showAddArrows = settingsUiState.showAddArrows
-        val showScoreRows = settingsUiState.showScoreRows
-
-
-        // Player Details And Score Card
-        Column(
-            modifier = modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .wrapContentHeight()
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .width(180.dp)
+                .animateContentSize(),
         ) {
-            var textName by rememberSaveable { mutableStateOf(player.name) }
+
+
+            val showIncrementArrows = settingsUiState.showIncrementArrows
+            val showDeleteRows = if (showEditOptions) {
+                true
+            } else {
+                settingsUiState.showDeleteRows
+            }
+            val showRoundLabels = settingsUiState.showRoundLabels
+            val showEditNumbers = if (showEditOptions) {
+                true
+            } else {
+                settingsUiState.showExpandedScores
+            }
+            val showScoreDividers = settingsUiState.showScoreDividers
+            val showAddArrows = settingsUiState.showAddArrows
+            val alwaysExpand = !settingsUiState.showGridView
+            if (alwaysExpand) {
+                showEditOptions = true
+            }
+            val startNumber = settingsUiState.startNumber
+
+            // Player Details And Score Card
             Column(
                 modifier = modifier
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
                     .animateContentSize()
-                    .padding(vertical = 4.dp)
+                    .wrapContentHeight(),
+                verticalArrangement = Arrangement.Top,
             ) {
-                // Player Name Box
-                CompactOutlinedTextField(
-                    value = textName,
-                    onValueChange = {
-                        textName = it
-                        onNameChange(player.id, textName)
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Player Name",
-                            style = MaterialTheme.typography.bodySmall,
+
+                var textName by rememberSaveable { mutableStateOf(player.name) }
+                Column(
+                    modifier = Modifier
+
+                ) {
+                    // Player Name Box
+                    CompactOutlinedTextField(
+                        value = textName,
+                        onValueChange = {
+                            textName = it
+                            onNameChange(player.id, textName)
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Player Name",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        },
+                        modifier = Modifier.height(32.dp),
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large,
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                        contentPadding = contentPadding(
+                            start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp
                         )
-                    },
-                    modifier = modifier.height(32.dp),
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.large,
-                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
-                    contentPadding = contentPadding(
-                        start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp
                     )
-                )
 
-                // Total Score and Bin Icon
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Total: $totalScore",
-                        softWrap = true,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = modifier
-                            .padding(vertical = 4.dp)
-                            .weight(1f)
-                    )
-                    if (showEditOptions) {
-                        IconButton(
-                            onClick = { showEditOptions = false }, modifier = modifier.size(30.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "Edit Player Button",
-                            )
-                        }
-
-                    } else {
-                        // Edit Key
-                        IconButton(
-                            onClick = { showEditOptions = true }, modifier = modifier.size(30.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Edit,
-                                contentDescription = "Edit Player Button",
-                                modifier = modifier.size(18.dp)
-                            )
-                        }
-                    }
-                }
-                // Pull Out Edit Options
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = modifier.fillMaxWidth()
-                ) {
-                    if (showEditOptions) {
-                        IconButton(modifier = modifier.size(32.dp), onClick = {
-                            showEditOptions = false
-                            onResetPlayerScore(player.id)
-                        }) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.delete_sweep),
-                                contentDescription = "Delete Score Button",
-                            )
-                        }
-                    }
-                }
-            }
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-
-
-            if (showScoreRows) {
-                // Score Card Layout
-                if (validScoreCard) {
-                    LazyColumn(
-                        modifier = modifier
-                            .weight(1f)
-                            .padding(vertical = 4.dp),
+                    // Total Score and Bin Icon
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        items(count = scores.size,
-                            key = { scores[it].scoreId },
-                            itemContent = { index ->
-                                val item = scores[index]
-                                Box(
-                                    contentAlignment = Alignment.BottomCenter,
-                                    modifier = modifier.animateItemPlacement()
+                        Text(
+                            text = "Total: $totalScore",
+                            softWrap = true,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 18.sp,
+                            modifier = Modifier
+                                .padding(vertical = 4.dp)
+                                .weight(1f)
+                        )
+                        if (showEditOptions) {
+                            if (!alwaysExpand) {
+                                IconButton(
+                                    onClick = { showEditOptions = false },
+                                    modifier = Modifier.size(30.dp)
                                 ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(id = R.drawable.expand_less),
+                                        contentDescription = "Edit Player Button",
+                                    )
+                                }
+                            }
+                        } else {
+                            // Expand Key
+                            IconButton(
+                                onClick = { showEditOptions = true },
+                                modifier = Modifier.size(30.dp)
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.expand_more),
+                                    contentDescription = "Edit Player Button",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+
+                        }
+                    }
+
+                    // Pull Out Edit Options
+                    if (showEditOptions) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            IconButton(modifier = modifier.size(32.dp), onClick = {
+                                showEditOptions = false
+                                onResetPlayerScore(player.id)
+                            }) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.delete_sweep),
+                                    contentDescription = "Delete Score Button",
+                                )
+                            }
+                        }
+                    }
+                }
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+
+                val layoutBoundModifier =
+                    if (settingsUiState.showGridView) Modifier.height(194.dp) else Modifier.weight(
+                        1f
+                    )
+
+
+                // Score Card Layout
+                if (showEditOptions) {
+                    if (validScoreCard) {
+
+
+                        LazyColumn(
+                            modifier = layoutBoundModifier
+                                .padding(vertical = 4.dp)
+                        ) {
+                            items(count = scores.size,
+                                key = { scores[it].scoreId },
+                                itemContent = { index ->
+                                    val item = scores[index]
                                     Box(
-                                        contentAlignment = Alignment.CenterStart,
+                                        contentAlignment = Alignment.BottomCenter,
+                                        modifier = Modifier.animateItemPlacement()
                                     ) {
-                                        if (showRoundLabels) {
-                                            Text(
-                                                text = "${index + 1}:",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.outline
+                                        Box(
+                                            contentAlignment = Alignment.CenterStart,
+                                        ) {
+
+                                            ScoreLine(
+                                                scoreIndex = item.scoreId,
+                                                score = item.scores,
+                                                roundText = "${index + startNumber}:",
+                                                checkScoreAdd = checkScoreAdd,
+                                                onChangeScore = onChangeScore,
+                                                onDeleteScore = onDeleteScore,
+                                                formatScoreAdd = formatScoreAdd,
+                                                showRoundLabels = showRoundLabels,
+                                                showIncrementArrows = showIncrementArrows,
+                                                showDeleteRows = showDeleteRows,
+                                                showEditNumbers = showEditNumbers
                                             )
                                         }
-
-                                        ScoreLine(
-                                            scoreIndex = item.scoreId,
-                                            score = item.scores,
-                                            checkScoreAdd = checkScoreAdd,
-                                            onChangeScore = onChangeScore,
-                                            onDeleteScore = onDeleteScore,
-                                            formatScoreAdd = formatScoreAdd,
-                                            showIncrementArrows = showIncrementArrows,
-                                            showDeleteRows = showDeleteRows,
-                                            showEditNumbers = showEditNumbers
-                                        )
+                                        if (showScoreDividers) {
+                                            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                                        }
                                     }
-                                    if (showScoreDividers) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                                    }
-                                }
 
-                            })
-                    }
-                } else {
-                    // No Scores Added
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "No Scores Added", textAlign = TextAlign.Center
-                        )
+                                })
+                        }
+                    } else {
+                        // No Scores Added
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = layoutBoundModifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "No Scores\nAdded", textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
+
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+
+                // Score Addition Buttons
+                Text(
+                    "${scores.size} ${if (scores.size == 1) "score" else "scores"}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                ScoreAdditionBottom(
+                    modifier = modifier.wrapContentHeight(),
+                    checkScoreAdd = checkScoreAdd,
+                    formatScoreAdd = formatScoreAdd,
+                    onAddScore = onAddScore,
+                    player = player,
+                    showArrows = showAddArrows
+                )
             }
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-
-            // Score Addition Buttons
-            ScoreAdditionBottom(
-                modifier = modifier.wrapContentHeight(),
-                checkScoreAdd = checkScoreAdd,
-                formatScoreAdd = formatScoreAdd,
-                onAddScore = onAddScore,
-                player = player,
-                showArrows = showAddArrows
+        }
+        // Delete Player Button
+        IconButton(
+            onClick = {
+                onDeletePlayer(player.id)
+            },
+            modifier = Modifier
+                .size(16.dp)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.remove_circle),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline,
             )
         }
-
-
     }
 }
 
@@ -589,21 +614,18 @@ fun ScoreLine(
     modifier: Modifier = Modifier,
     scoreIndex: Int,
     score: String,
+    roundText: String,
     checkScoreAdd: (String) -> Boolean,
     onChangeScore: (Int, String) -> Unit,
     onDeleteScore: (Int) -> Unit,
     formatScoreAdd: (String) -> String,
+    showRoundLabels: Boolean,
     showIncrementArrows: Boolean,
     showDeleteRows: Boolean,
     showEditNumbers: Boolean
 ) {
 
     var currentScore by remember { mutableStateOf(score) }
-    val visible by remember { mutableStateOf(true) }
-
-    AnimatedVisibility(visible) {
-
-    }
 
     val state = remember {
         MutableTransitionState(false).apply {
@@ -614,7 +636,9 @@ fun ScoreLine(
     AnimatedVisibility(
         visibleState = state,
         enter = fadeIn(),
+        modifier = modifier.wrapContentHeight()
     ) {
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
@@ -623,10 +647,8 @@ fun ScoreLine(
                 .height(40.dp)
                 .padding(vertical = 4.dp)
         ) {
-            AnimatedVisibility(
-                visible = showIncrementArrows,
-                enter = fadeIn(),
-            ) {
+
+            if (showIncrementArrows)
                 IconButton(
                     onClick = {
                         if (checkScoreAdd(currentScore)) {
@@ -644,7 +666,7 @@ fun ScoreLine(
                         contentDescription = "Add Score Button",
                     )
                 }
-            }
+
 
             if (!showEditNumbers) {
                 Text(
@@ -658,48 +680,16 @@ fun ScoreLine(
                         .width(36.dp)
                 )
             } else {
-
-                CompactOutlinedTextField(
-                    value = currentScore,
-                    placeholder = {
-                        Box(
-                            contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()
-                        ) {
-                            Text(
-                                text = score,
-                                fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                TextFieldButton(
+                    currentText = score,
+                    onSaveText = {
+                        onChangeScore(scoreIndex, it)
                     },
-                    onValueChange = {
-                        if (checkScoreAdd(it)) {
-                            currentScore = formatScoreAdd(it)
-                            onChangeScore(scoreIndex, it)
-                        } else {
-                            val format = formatScoreAdd(it)
-                            if (format == "") {
-                                currentScore = ""
-                            } else {
-                                currentScore = format
-                            }
-                        }
-                    },
-                    modifier = modifier
-                        .height(36.dp)
-                        .width(36.dp),
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.extraSmall,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = TextStyle(
-                        textAlign = TextAlign.Center,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
+                    formatText = formatScoreAdd,
+                    alertTextTitle = "Edit Score"
                 )
-
             }
-            AnimatedVisibility(showIncrementArrows) {
+            if (showIncrementArrows) {
                 IconButton(
                     onClick = {
                         if (checkScoreAdd(currentScore)) {
@@ -719,7 +709,15 @@ fun ScoreLine(
                     )
                 }
             }
-            AnimatedVisibility(showDeleteRows) {
+        }
+
+        Box(
+            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier
+                .height(40.dp)
+                .fillMaxWidth(),
+        ) {
+            if (showDeleteRows) {
                 IconButton(
                     onClick = {
                         onDeleteScore(scoreIndex)
@@ -735,7 +733,18 @@ fun ScoreLine(
                     )
                 }
             }
-
+        }
+        Box(
+            modifier = Modifier.height(40.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            if (showRoundLabels) {
+                Text(
+                    text = roundText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
     }
 
@@ -753,9 +762,8 @@ private fun ScoreAdditionBottom(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom,
-        modifier = modifier
+        modifier = Modifier
             .padding(top = 8.dp)
-            .wrapContentHeight()
 
     ) {
         var scoreAdd by rememberSaveable { mutableStateOf("0") }
@@ -763,7 +771,7 @@ private fun ScoreAdditionBottom(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             if (showArrows) {
                 IconButton(
@@ -774,7 +782,7 @@ private fun ScoreAdditionBottom(
                             scoreAdd = "0"
                         }
                     },
-                    modifier = modifier.weight(9f),
+                    modifier = Modifier.weight(9f),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -788,9 +796,20 @@ private fun ScoreAdditionBottom(
                     scoreAdd = formatScoreAdd(it)
                 },
                 label = { Text("") },
-                modifier = modifier
+                modifier = Modifier
                     .height(40.dp)
-                    .width(60.dp),
+                    .width(60.dp)
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            scoreAdd = ""
+                        } else {
+                            if (scoreAdd == "") {
+                                scoreAdd = "0"
+                            } else {
+                                scoreAdd = formatScoreAdd(scoreAdd)
+                            }
+                        }
+                    },
                 singleLine = true,
                 shape = MaterialTheme.shapes.extraSmall,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -807,7 +826,7 @@ private fun ScoreAdditionBottom(
                             scoreAdd = "0"
                         }
                     },
-                    modifier = modifier.weight(9f),
+                    modifier = Modifier.weight(9f),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -816,18 +835,33 @@ private fun ScoreAdditionBottom(
                 }
             }
         }
-        IconButton(onClick = {
-            if (checkScoreAdd(scoreAdd)) {
-                onAddScore(player.id, scoreAdd)
-            } else {
+
+        val showReset = (scoreAdd == "" || scoreAdd == "-")
+        AnimatedVisibility(showReset) {
+            IconButton(onClick = {
                 scoreAdd = "0"
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = "Reset Score Add to zero",
+                    modifier = modifier.size(32.dp)
+                )
             }
-        }) {
-            Icon(
-                imageVector = Icons.Filled.AddCircle,
-                contentDescription = "Add Score to Row",
-                modifier = modifier.size(32.dp)
-            )
+        }
+        AnimatedVisibility(!showReset) {
+            IconButton(onClick = {
+                if (checkScoreAdd(scoreAdd)) {
+                    onAddScore(player.id, scoreAdd)
+                } else {
+                    scoreAdd = "0"
+                }
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = "Add Score to Row",
+                    modifier = modifier.size(32.dp)
+                )
+            }
         }
     }
 }

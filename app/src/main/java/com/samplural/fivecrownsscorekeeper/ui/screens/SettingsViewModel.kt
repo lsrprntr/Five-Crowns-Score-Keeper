@@ -24,7 +24,9 @@ class SettingsViewModel(
                 showEditNumbers = it.showEditNumbers,
                 showScoreDividers = it.showScoreDividers,
                 showAddArrows = it.showAddArrows,
-                showScoreRows = it.showScoreRows
+                showScoreRows = it.showScoreRows,
+                startNumber = it.startNumber
+
             )
         }.stateIn(
             scope = viewModelScope,
@@ -36,6 +38,23 @@ class SettingsViewModel(
         viewModelScope.launch {
             settingsRepository.updateBooleanWithKey(key, bool)
         }
+    }
+
+    fun updateIntWithKey(key: String, num: Int) {
+        viewModelScope.launch {
+            settingsRepository.updateIntWithKey(key, num)
+        }
+    }
+
+    fun resetSettings() {
+        viewModelScope.launch {
+            settingsRepository.resetSettings()
+        }
+    }
+
+    fun formatNumber(num: String): String {
+        val number = num.toIntOrNull()
+        return number?.toString() ?: "1"
     }
 }
 
