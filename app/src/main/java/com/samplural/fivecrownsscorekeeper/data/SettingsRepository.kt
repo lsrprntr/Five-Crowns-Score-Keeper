@@ -48,8 +48,8 @@ class SettingsRepository(
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = dataStore.data.map { preferences ->
-        val showIncrementArrows = preferences[SHOW_INCREMENT_ARROWS] ?: false
-        val showDeleteRows = preferences[PreferencesKeys.SHOW_DELETE_ROWS] ?: false
+        val showIncrementArrows = preferences[SHOW_INCREMENT_ARROWS] ?: true
+        val showDeleteRows = preferences[PreferencesKeys.SHOW_DELETE_ROWS] ?: true
         val showRoundLabels = preferences[PreferencesKeys.SHOW_ROUND_LABELS] ?: true
         val showExpandedScores = preferences[PreferencesKeys.SHOW_EXPANDED_SCORES] ?: true
         val showEditNumbers = preferences[PreferencesKeys.SHOW_EDIT_NUMBERS] ?: false

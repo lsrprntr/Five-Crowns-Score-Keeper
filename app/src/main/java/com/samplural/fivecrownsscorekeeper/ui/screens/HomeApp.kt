@@ -686,7 +686,8 @@ fun ScoreLine(
                         onChangeScore(scoreIndex, it)
                     },
                     formatText = formatScoreAdd,
-                    alertTextTitle = "Edit Score"
+                    alertTextTitle = "Edit Score",
+                    modifier = modifier.padding(horizontal = 4.dp)
                 )
             }
             if (showIncrementArrows) {
