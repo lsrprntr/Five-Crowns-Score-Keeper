@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">Five Crowns Score Keeper</string>
+    <string name="app_name">Score Keeper</string>
     <string name="app_name_general">Score Keeper</string>
     <string name="player_name">Player Name</string>
     <string name="total_colon">Total: </string>
+    <string name="ad_id_banner">ca-app-pub-4407984085794628/1713080801</string>
 
 </resources>

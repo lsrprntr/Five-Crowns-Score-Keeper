@@ -9,6 +9,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -72,6 +74,7 @@ import com.samplural.fivecrownsscorekeeper.data.Scores
 import com.samplural.fivecrownsscorekeeper.data.UserPreferences
 import com.samplural.fivecrownsscorekeeper.data.scoreSeperator
 import com.samplural.fivecrownsscorekeeper.ui.AppViewModelProvider
+import com.samplural.fivecrownsscorekeeper.ui.templates.BannerAd
 import com.samplural.fivecrownsscorekeeper.ui.templates.CompactOutlinedTextField
 
 
@@ -165,7 +168,11 @@ fun HomeApp(
                 },
             )
         },
-        bottomBar = { HorizontalDivider() }
+        bottomBar = {
+            BottomAppBar(contentPadding = PaddingValues(0.dp)) {
+                BannerAd()
+            }
+        }
     ) { paddingValues ->
         Column(
             modifier = modifier

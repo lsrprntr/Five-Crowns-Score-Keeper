@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.compose.AppTheme
+import com.google.android.gms.ads.MobileAds
 import com.samplural.fivecrownsscorekeeper.ui.NavApp
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this)
         enableEdgeToEdge()
         setContent {
             AppTheme {
@@ -24,6 +26,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 
