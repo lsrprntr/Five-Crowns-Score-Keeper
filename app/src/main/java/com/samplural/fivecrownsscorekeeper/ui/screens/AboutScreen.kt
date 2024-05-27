@@ -80,7 +80,7 @@ fun AboutScreen(
                     modifier.padding(100.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Created by Sam.")
+                    Text("Created by Samplural.")
                     val annotatedString = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
                             append("My ")
