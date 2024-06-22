@@ -175,13 +175,17 @@ fun SettingsBoolItem(
     ) {
         Text(
             text = title,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .weight(9f),
             style = MaterialTheme.typography.bodyLarge
         )
         Switch(
             checked = checked, onCheckedChange = {
                 onCheckedChange(it)
-            }, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            }, modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .weight(1f)
         )
     }
     HorizontalDivider()

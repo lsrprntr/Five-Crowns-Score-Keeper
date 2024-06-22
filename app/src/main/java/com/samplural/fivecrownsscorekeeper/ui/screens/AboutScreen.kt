@@ -80,7 +80,8 @@ fun AboutScreen(
                     modifier.padding(100.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Created by Sam.")
+                    Text("Created by Samplural.")
+                    Text("This is a free app made from my free time for a friend.")
                     val annotatedString = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
                             append("My ")
@@ -132,7 +133,7 @@ fun AboutScreen(
                     )
                     AnimatedVisibility(
                         visibleState = state,
-                        enter = fadeIn(spring(800f))
+                        enter = fadeIn(spring(1000f))
                     ) {
                         Text("I need a job.")
                     }
