@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
@@ -80,8 +81,14 @@ fun AboutScreen(
                     modifier.padding(100.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Created by Samplural.")
-                    Text("This is a free app made from my free time for a friend.")
+                    Text(
+                        "Created by Samplural.",
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "This is a free app made from my free time for a friend.",
+                        textAlign = TextAlign.Center
+                    )
                     val annotatedString = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
                             append("My ")
