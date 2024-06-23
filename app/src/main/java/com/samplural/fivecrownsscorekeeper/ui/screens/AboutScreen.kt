@@ -79,7 +79,7 @@ fun AboutScreen(
                 enter = fadeIn(spring(10f))
             ) {
                 Column(
-                    modifier.padding(100.dp),
+                    modifier.padding(60.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
