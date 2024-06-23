@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -119,7 +120,7 @@ fun AboutScreen(
 
                     ClickableText(
                         text = annotatedString,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = TextStyle(textAlign = TextAlign.Center),
                         onClick = { offset ->
                             annotatedString.getStringAnnotations(
                                 tag = "website",
