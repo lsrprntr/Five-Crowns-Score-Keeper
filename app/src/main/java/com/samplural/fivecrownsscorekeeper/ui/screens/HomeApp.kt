@@ -82,6 +82,7 @@ fun HomeApp(
     viewModel: HomeAppViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
+    onRankingClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scoreUiState by viewModel.scoreUiState.collectAsState()
@@ -105,7 +106,7 @@ fun HomeApp(
                             imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
                         )
                     }
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { onRankingClick() }) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.trophy),
                             contentDescription = "Rankings View Button"

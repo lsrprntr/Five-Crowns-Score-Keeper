@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.samplural.fivecrownsscorekeeper.ui.screens.AboutScreen
 import com.samplural.fivecrownsscorekeeper.ui.screens.HomeApp
+import com.samplural.fivecrownsscorekeeper.ui.screens.RankingScreen
 import com.samplural.fivecrownsscorekeeper.ui.screens.SettingsScreen
 @Composable
 fun NavApp(
@@ -21,7 +22,8 @@ fun NavApp(
         composable("home") {
             HomeApp(
                 onSettingsClick = { navController.navigate("settings") },
-                onAboutClick = { navController.navigate("about") }
+                onAboutClick = { navController.navigate("about") },
+                onRankingClick = { navController.navigate("ranking") }
             )
         }
         composable("settings") {
@@ -31,6 +33,9 @@ fun NavApp(
         }
         composable("about") {
             AboutScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable("ranking") {
+            RankingScreen(onBackClick = { navController.popBackStack() })
         }
     }
 
