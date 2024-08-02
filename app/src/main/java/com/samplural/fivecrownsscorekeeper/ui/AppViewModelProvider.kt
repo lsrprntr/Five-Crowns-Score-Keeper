@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.samplural.fivecrownsscorekeeper.PlayersApplication
 import com.samplural.fivecrownsscorekeeper.ui.screens.HomeAppViewModel
+import com.samplural.fivecrownsscorekeeper.ui.screens.RankingScreenViewModel
 import com.samplural.fivecrownsscorekeeper.ui.screens.SettingsViewModel
 
 /**
@@ -25,6 +26,13 @@ object AppViewModelProvider {
                 playersApplication().container.settingsRepository
             )
         }
+        initializer {
+            RankingScreenViewModel(
+                playersApplication().container.playersRepository,
+                playersApplication().container.settingsRepository
+            )
+        }
+
 
     }
 }

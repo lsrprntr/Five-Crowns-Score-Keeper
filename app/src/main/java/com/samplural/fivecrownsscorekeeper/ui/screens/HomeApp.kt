@@ -105,6 +105,12 @@ fun HomeApp(
                             imageVector = Icons.Filled.Add, contentDescription = "Add Player Button"
                         )
                     }
+                    IconButton(onClick = { }) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.trophy),
+                            contentDescription = "Rankings View Button"
+                        )
+                    }
                     IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
