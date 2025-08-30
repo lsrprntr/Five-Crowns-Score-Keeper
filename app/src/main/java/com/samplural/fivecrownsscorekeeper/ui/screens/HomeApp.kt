@@ -247,7 +247,7 @@ fun HomeBody(
                                 val player = playersList[index]
                                 Box(
                                     modifier = Modifier
-                                        .animateItemPlacement()
+                                        .animateItem()
                                         .wrapContentWidth(),
                                     contentAlignment = Alignment.TopCenter
                                 ) {
@@ -294,7 +294,7 @@ fun HomeBody(
                         itemContent = { index ->
                             val player = playersList[index]
                             Box(
-                                modifier = modifier.animateItemPlacement(),
+                                modifier = modifier.animateItem(),
                             ) {
                                 val filteredScores = scoresList.filter { it.playerId == player.id }
                                 val cardState = remember {
@@ -538,7 +538,7 @@ fun PlayerCard(
                                     val item = scores[index]
                                     Box(
                                         contentAlignment = Alignment.BottomCenter,
-                                        modifier = Modifier.animateItemPlacement()
+                                        modifier = Modifier.animateItem()
                                     ) {
                                         Box(
                                             contentAlignment = Alignment.CenterStart,
