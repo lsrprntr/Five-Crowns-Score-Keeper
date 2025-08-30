@@ -2,18 +2,17 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
-
-
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.samplural.fivecrownsscorekeeper"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.samplural.fivecrownsscorekeeper"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 3
         versionName = "1.2"
 
