@@ -288,7 +288,6 @@ fun HomeBody(
                 LazyRow(
                     modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp)
                 ) {
-
                     items(count = playersList.size,
                         key = { playersList[it].id },
                         itemContent = { index ->
