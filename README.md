@@ -5,7 +5,7 @@ Originally made for the purpose of the Five Crowns card game in which you need t
 
 ## How to Install
 
-1. Download latest APK [LINK](https://github.com/lsrprntr/Five-Crowns-Score-Keeper/releases/download/release/scorekeeper.apk)
+1. Download latest APK [LINK](https://github.com/lsrprntr/Five-Crowns-Score-Keeper/releases/download/v1.0.2/scorekeeper.apk)
 2. Install on Android device. (May require additional security permission to install from unknown sources)
 3. Play
 
