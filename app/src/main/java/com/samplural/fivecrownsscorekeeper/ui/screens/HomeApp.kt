@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -174,9 +175,10 @@ fun HomeApp(
                 },
             )
         },
-        bottomBar = { HorizontalDivider() }
+        bottomBar = { HorizontalDivider() },
+
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = modifier
                 .padding(paddingValues)
                 .fillMaxSize(),
@@ -517,9 +519,11 @@ fun PlayerCard(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
                 val layoutBoundModifier =
-                    if (settingsUiState.showGridView) Modifier.height(194.dp) else Modifier.weight(
-                        1f
-                    )
+                    if (settingsUiState.showGridView) {
+                        Modifier.height(194.dp)
+                    } else {
+                        Modifier.weight(1f)
+                    }
 
 
                 // Score Card Layout
