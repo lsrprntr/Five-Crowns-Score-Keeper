@@ -644,6 +644,7 @@ fun ScoreLine(
     AnimatedVisibility(
         visibleState = state,
         enter = fadeIn(),
+        exit = fadeOut(),
         modifier = modifier.wrapContentHeight()
     ) {
 
