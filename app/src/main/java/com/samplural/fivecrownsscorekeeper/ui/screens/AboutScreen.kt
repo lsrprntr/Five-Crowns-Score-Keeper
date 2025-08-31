@@ -87,7 +87,7 @@ fun AboutScreen(
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        "This is a free app made from my free time for a friend.",
+                        "This is a free app made from in my free time for a friend.",
                         textAlign = TextAlign.Center
                     )
                     val annotatedString = buildAnnotatedString {
@@ -95,7 +95,7 @@ fun AboutScreen(
                             append("My ")
                         }
 
-                        pushStringAnnotation(tag = "website", annotation = "https://samplural.com/")
+                        pushStringAnnotation(tag = "website", annotation = "https://lsrprntr.github.io/")
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                             append("website")
                         }
