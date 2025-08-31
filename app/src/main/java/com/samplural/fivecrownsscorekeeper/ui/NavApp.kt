@@ -9,6 +9,7 @@ import com.samplural.fivecrownsscorekeeper.ui.screens.AboutScreen
 import com.samplural.fivecrownsscorekeeper.ui.screens.HomeApp
 import com.samplural.fivecrownsscorekeeper.ui.screens.RankingScreen
 import com.samplural.fivecrownsscorekeeper.ui.screens.SettingsScreen
+
 @Composable
 fun NavApp(
     modifier: Modifier = Modifier
@@ -17,7 +18,8 @@ fun NavApp(
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "home",
+
     ) {
         composable("home") {
             HomeApp(
