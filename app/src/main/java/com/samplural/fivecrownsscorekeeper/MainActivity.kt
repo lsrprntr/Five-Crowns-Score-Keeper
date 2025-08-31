@@ -1,6 +1,7 @@
 package com.samplural.fivecrownsscorekeeper
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,12 +16,20 @@ import com.samplural.fivecrownsscorekeeper.ui.NavApp
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)//Depreciated but works better than the manifest
+
         setContent {
             AppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize().imePadding()) { paddingValues ->
-                    NavApp(modifier = Modifier.padding(paddingValues))
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                        .imePadding(), //So keyboard does not cover the content
+                ) { paddingValues ->
+                    NavApp(
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues)
+                    )
                 }
             }
         }
